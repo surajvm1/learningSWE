@@ -113,3 +113,15 @@ pre {
 .link-button:hover {
   background-color: #21a1f1;
 }
+
+.success {
+  color: green;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  margin-top: 1rem;
+}

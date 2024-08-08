@@ -89,3 +89,4 @@ site_build
 venv
 docs.zip
 archive.zip
+python3.11

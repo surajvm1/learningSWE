@@ -9,14 +9,19 @@ function PostUserData() {
   const [location, setLocation] = useState('');
   const [email, setEmail] = useState('');
   const [response, setResponse] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSuccessMessage('');
+    setErrorMessage('');
     try {
       const res = await axios.post('http://localhost:5000/api/postUserData', { username, age, location, email });
       setResponse(res.data);
+      setSuccessMessage('Data posted successfully!');
     } catch (error) {
-      console.error('There was an error posting the data!', error);
+      setErrorMessage('There was an error posting the data.');
     }
   };
 
@@ -65,6 +70,8 @@ function PostUserData() {
         </div>
         <button type="submit">Post Data</button>
       </form>
+      {successMessage && <p className="success">{successMessage}</p>}
+      {errorMessage && <p className="error">{errorMessage}</p>}
       {response && (
         <div>
           <h2>Response from Server</h2>

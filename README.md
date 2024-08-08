@@ -24,3 +24,16 @@ cleanup unnecessary files
 npm install react-router-dom
 
 coding routes and basic code
+
+python service
+ 2482  cd microservices
+ 2483  ls
+ 2484  python3 -m venv microServiceB
+ 2485  cd microServiceB
+ 2486  source bin/activate
+ 2487  pip freeze
+
+pip install fastapi requests "uvicorn[standard]" SQLAlchemy==1.4.46 psycopg2-binary pydantic pandas redis
+
+# podman build --no-cache -t microserviceb_image .
+# podman run -p 8900:8900 --name microServiceBContainer microserviceb_image
