@@ -37,3 +37,25 @@ pip install fastapi requests "uvicorn[standard]" SQLAlchemy==1.4.46 psycopg2-bin
 
 # podman build --no-cache -t microserviceb_image .
 # podman run -p 8900:8900 --name microServiceBContainer microserviceb_image
+
+brew install nginx       
+brew services start nginx
+it runs in 8080 port
+cd /opt/homebrew/etc/nginx
+
+making changes in the config file
+here in project added config file just for reference how it looks like
+paralelly setup kong gatewaymicroservice
+
+
+
+
+
+
+
+
+
+
+
+
+

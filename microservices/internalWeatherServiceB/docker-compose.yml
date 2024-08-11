@@ -1,0 +1,58 @@
+version: '3'
+networks:
+  service_network:
+    name: service_compose_network
+
+services:
+  internal_weather_service_a:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: internal_weather_service_a
+    ports:
+      - "8900:8900"
+    env_file:
+      - .env  # Use the .env file to inject environment variables in fastapi service rather than using environment keyword
+    depends_on:
+      - postgres_service
+      - redis_service
+      - mongodb_service
+    networks:
+      - service_network
+
+  postgres_service:
+    image: postgres:13
+    container_name: postgres_service
+    environment:
+      POSTGRES_USER: postgres_user_suraj
+      POSTGRES_PASSWORD: postgres_pws_1234
+      POSTGRES_DB: weatherdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - service_network
+
+  redis_service:
+    image: redis:6
+    container_name: redis_service
+    ports:
+      - "6379:6379"
+    networks:
+      - service_network
+
+  mongodb_service:
+    image: mongo:4.4
+    container_name: mongodb_service
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo_user_suraj
+      MONGO_INITDB_ROOT_PASSWORD: mongo_pws_1234
+    ports:
+      - "27017:27017"
+    networks:
+      - service_network
+
+volumes:
+  pgdata:
+  redisdata:
