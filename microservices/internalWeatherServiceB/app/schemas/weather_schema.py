@@ -14,3 +14,6 @@ class WeatherResponse(BaseModel):
 
     class Config:
         orm_mode = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat(timespec='seconds') if isinstance(v, datetime) else v,
+        }

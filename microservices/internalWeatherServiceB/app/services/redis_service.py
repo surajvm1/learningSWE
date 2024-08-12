@@ -1,5 +1,5 @@
-import redis
 from datetime import datetime
+import redis
 from app.config import settings
 
 redis_client = redis.StrictRedis(
@@ -7,7 +7,7 @@ redis_client = redis.StrictRedis(
 )
 
 def set_weather(location: str, temperature: int):
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.utcnow().isoformat(timespec='seconds')
     key = f"{location}:{timestamp}"
     redis_client.set(key, temperature)
 
@@ -17,10 +17,11 @@ def get_latest_weather(location: str):
         return None
 
     latest_key = max(keys)
+    timestamp = latest_key.split(":")[1]
     return {
         "location": location,
         "temperature": int(redis_client.get(latest_key)),
-        "timestamp": latest_key.split(":")[1]
+        "timestamp": datetime.fromisoformat(timestamp)  # Ensure it's a datetime object
     }
 
 def delete_latest_weather(location: str):

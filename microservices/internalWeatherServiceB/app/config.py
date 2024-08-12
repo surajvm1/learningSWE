@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     MONGO_DB: str
     DOCKER_COMPOSE_MODE: str
 
-
     class Config:
         env_file = ".env"
 

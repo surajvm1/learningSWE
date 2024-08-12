@@ -3,12 +3,10 @@ from datetime import datetime
 from app.models.weather import Weather
 from app.schemas.weather_schema import WeatherData
 
-
 def fetch_weather_from_postgres(db: Session, location: str):
     return db.query(Weather).filter(Weather.location == location).order_by(Weather.timestamp.desc()).first()
 
-
-def add_weather_to_postgres(db: Session, weather: WeatherData):
+async def add_weather_to_postgres(db: Session, weather: WeatherData):
     weather_data = weather.dict()
     weather_data['timestamp'] = datetime.utcnow()
 
@@ -18,8 +16,7 @@ def add_weather_to_postgres(db: Session, weather: WeatherData):
     db.refresh(db_weather)
     return db_weather
 
-
-def update_weather_in_postgres(db: Session, location: str, weather: WeatherData):
+async def update_weather_in_postgres(db: Session, location: str, weather: WeatherData):
     db_weather = db.query(Weather).filter(Weather.location == location).order_by(Weather.timestamp.desc()).first()
     if db_weather:
         weather_data = weather.dict()
@@ -31,8 +28,7 @@ def update_weather_in_postgres(db: Session, location: str, weather: WeatherData)
         db.refresh(db_weather)
     return db_weather
 
-
-def delete_weather_from_postgres(db: Session, location: str):
+async def delete_weather_from_postgres(db: Session, location: str):
     db_weather = db.query(Weather).filter(Weather.location == location).order_by(Weather.timestamp.desc()).first()
     if db_weather:
         db.delete(db_weather)
