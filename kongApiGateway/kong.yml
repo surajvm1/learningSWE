@@ -1,0 +1,51 @@
+_format_version: "3.0"
+
+services:
+  - name: internal-weather-service
+    url: http://internal_weather_service_b:8900
+    routes:
+      - name: internal-weather-route
+        paths:
+          - /api/getWeather/*
+          - /api/sendWeather/*
+          - /api/updateWeather/*
+          - /api/deleteWeather/*
+
+  - name: external-weather-service
+    url: http://external_service_a:9900
+    routes:
+      - name: external-weather-route
+        paths:
+          - /externalApi/getWeather
+
+upstreams:
+  - name: weather-upstream
+    targets:
+      - target: internal_weather_service_b:8900
+        weight: 100
+      - target: external_service_a:9900
+        weight: 0  # Only fallback if internal_weather_service_b fails
+    healthchecks:
+      active:
+        http_path: "/" # checking server health check at root endpoint, defined in backend code at intervals below
+        healthy:
+          interval: 60
+          http_statuses: [200, 302]
+          successes: 1
+        unhealthy:
+          interval: 120
+          http_statuses: [429, 500, 503]
+          tcp_failures: 3
+          timeouts: 1
+          http_failures: 3
+
+routes:
+  - name: get-weather-route
+    paths:
+      - /api/getWeather
+    service: internal-weather-service
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 503
+          message: "Service unavailable, please try again later."

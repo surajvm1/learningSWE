@@ -27,7 +27,7 @@ app.add_middleware(
 
 @app.get("/")
 async def server_health_check():
-    return {"Status": "Server healthy!"}
+    return {"Status": "Internal Weather Service Server healthy!"}
 
 @app.get("/api/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str, db: Session = Depends(get_db)):
@@ -38,12 +38,22 @@ async def get_weather(location: str, db: Session = Depends(get_db)):
     weather = fetch_weather_from_postgres(db, location)
     if weather:
         set_weather(weather.location, weather.temperature)
-        return {"location": weather.location, "temperature": weather.temperature, "timestamp": weather.timestamp}
+        response_data = {
+            "location": weather.location,
+            "temperature": weather.temperature,
+            "timestamp": weather.timestamp
+        }
+        return response_data
 
     weather = await fetch_weather_from_mongodb(location)
     if weather:
         set_weather(weather["location"], weather["temperature"])
-        return {"location": weather["location"], "temperature": weather["temperature"], "timestamp": weather["timestamp"]}
+        response_data = {
+            "location": weather["location"],
+            "temperature": weather["temperature"],
+            "timestamp": weather["timestamp"]
+        }
+        return response_data
 
     raise HTTPException(status_code=404, detail="Weather data not found")
 
@@ -54,7 +64,10 @@ async def send_weather(weather: WeatherData, db: Session = Depends(get_db)):
         add_weather_to_mongodb(weather)
     )
     set_weather(weather.location, weather.temperature)
-    return {"message": "Weather data added successfully"}
+    response_data = {
+        "message": "Weather data added successfully"
+    }
+    return response_data
 
 @app.put("/api/updateWeather/{location}")
 async def update_weather(location: str, weather: WeatherData, db: Session = Depends(get_db)):
@@ -63,7 +76,10 @@ async def update_weather(location: str, weather: WeatherData, db: Session = Depe
         update_weather_in_mongodb(location, weather)
     )
     set_weather(location, weather.temperature)
-    return {"message": "Weather data updated successfully"}
+    response_data = {
+        "message": "Weather data updated successfully"
+    }
+    return response_data
 
 @app.delete("/api/deleteWeather/{location}")
 async def delete_weather(location: str, db: Session = Depends(get_db)):
@@ -72,4 +88,7 @@ async def delete_weather(location: str, db: Session = Depends(get_db)):
         delete_weather_from_mongodb(location)
     )
     delete_latest_weather(location)
-    return {"message": "Weather data deleted successfully"}
+    response_data = {
+        "message": "Weather data deleted successfully"
+    }
+    return response_data

@@ -20,4 +20,140 @@ nginx consists of modules which are controlled by directives specified in the co
 
 Directives placed in the configuration file outside of any contexts are considered to be in the main context.
 
+An important web server task is serving out files (such as images or static HTML pages).
+You will implement an example where, depending on the request, files will be served from different local directories: /data/www (which may contain HTML files) and /data/images (containing images). This will require editing of the configuration file and setting up of a server block inside the http block with two location blocks.
+First, create the /data/www directory and put an index.html file with any text content into it and create the /data/images directory and place some images in it.
+
+Next, open the configuration file. The default configuration file already includes several examples of the server block, mostly commented out. For now comment out all such blocks and start a new server block:
+
+http {
+    server {
+    }
+}
+Generally, the configuration file may include several server blocks distinguished by ports on which they listen to and by server names. Once nginx decides which server processes a request, it tests the URI specified in the request’s header against the parameters of the location directives defined inside the server block.
+
+Add the following location block to the server block:
+
+location / {
+    root /data/www;
+}
+This location block specifies the “/” prefix compared with the URI from the request. For matching requests, the URI will be added to the path specified in the root directive, that is, to /data/www, to form the path to the requested file on the local file system. If there are several matching location blocks nginx selects the one with the longest prefix. The location block above provides the shortest prefix, of length one, and so only if all other location blocks fail to provide a match, this block will be used.
+
+Next, add the second location block:
+
+location /images/ {
+    root /data;
+}
+It will be a match for requests starting with /images/ (location / also matches such requests, but has shorter prefix).
+
+The resulting configuration of the server block should look like this:
+
+server {
+    location / {
+        root /data/www;
+    }
+
+    location /images/ {
+        root /data;
+    }
+}
+This is already a working configuration of a server that listens on the standard port 80 and is accessible on the local machine at http://localhost/. In response to requests with URIs starting with /images/, the server will send files from the /data/images directory. For example, in response to the http://localhost/images/example.png request nginx will send the /data/images/example.png file. If such file does not exist, nginx will send a response indicating the 404 error. Requests with URIs not starting with /images/ will be mapped onto the /data/www directory. For example, in response to the http://localhost/some/example.html request nginx will send the /data/www/some/example.html file.
+
+To apply the new configuration, start nginx if it is not yet started or send the reload signal to the nginx’s master process, by executing:
+
+nginx -s reload
+
+similarly setting up a proxy server: https://nginx.org/en/docs/beginners_guide.html
+
+nginx admin guide: https://docs.nginx.com/nginx/admin-guide/basic-functionality/runtime-control/
+
+HTTP Load Balancing
+
+Load balancing across multiple application instances is a commonly used technique for optimizing resource utilization, maximizing throughput, reducing latency, and ensuring fault‑tolerant configurations.
+
+
+To start using NGINX Plus or NGINX Open Source to load balance HTTP traffic to a group of servers, first you need to define the group with the upstream directive. The directive is placed in the http context.
+
+Servers in the group are configured using the server directive (not to be confused with the server block that defines a virtual server running on NGINX). For example, the following configuration defines a group named backend and consists of three server configurations (which may resolve in more than three actual servers):
+
+http {
+    upstream backend {
+        server backend1.example.com weight=5;
+        server backend2.example.com;
+        server 192.0.0.1 backup;
+    }
+}
+
+To pass requests to a server group, the name of the group is specified in the proxy_pass directive (or the fastcgi_pass, memcached_pass, scgi_pass, or uwsgi_pass directives for those protocols.) In the next example, a virtual server running on NGINX passes all requests to the backend upstream group defined in the previous example:
+
+server {
+    location / {
+        proxy_pass http://backend;
+    }
+}
+The following example combines the two snippets above and shows how to proxy HTTP requests to the backend server group. The group consists of three servers, two of them running instances of the same application while the third is a backup server. Because no load‑balancing algorithm is specified in the upstream block, NGINX uses the default algorithm, Round Robin:
+
+http {
+    upstream backend {
+        server backend1.example.com;
+        server backend2.example.com;
+        server 192.0.0.1 backup;
+    }
+
+    server {
+        location / {
+            proxy_pass http://backend;
+        }
+    }
+}
+
+NGINX Open Source supports four load‑balancing methods, and NGINX Plus adds two more methods:
+Round Robin – Requests are distributed evenly across the servers, with server weights taken into consideration. This method is used by default (there is no directive for enabling it):
+Least Connections – A request is sent to the server with the least number of active connections, again with server weights taken into consideration:
+Eg: 
+upstream backend {
+    least_conn;
+    server backend1.example.com;
+    server backend2.example.com;
+}
+IP Hash – The server to which a request is sent is determined from the client IP address. In this case, either the first three octets of the IPv4 address or the whole IPv6 address are used to calculate the hash value. The method guarantees that requests from the same address get to the same server unless it is not available.
+Generic Hash – The server to which a request is sent is determined from a user‑defined key which can be a text string, variable, or a combination. For example, the key may be a paired source IP address and port, or a URI as in this example:
+Least Time (NGINX Plus only) 
+Random 
+
+By default, NGINX distributes requests among the servers in the group according to their weights using the Round Robin method. The weight parameter to the server directive sets the weight of a server; the default is 1:
+
+
+The server slow‑start feature prevents a recently recovered server from being overwhelmed by connections, which may time out and cause the server to be marked as failed again.
+
+Session persistence means that NGINX Plus identifies user sessions and routes all requests in a given session to the same upstream server.
+
+With NGINX Plus, it is possible to limit the number of active connections to an upstream server by specifying the maximum number with the max_conns parameter.
+
+NGINX can continually test your HTTP upstream servers, avoid the servers that have failed, and gracefully add the recovered servers into the load‑balanced group.
+
+When caching is enabled, NGINX Plus saves responses in a disk cache and uses them to respond to clients without having to proxy requests for the same content every time.
+
+To enable caching, include the proxy_cache_path directive in the top‑level http {} context. There are two additional NGINX processes involved in caching:
+
+The cache manager is activated periodically to check the state of the cache. If the cache size exceeds the limit set by the max_size parameter to the proxy_cache_path directive, the cache manager removes the data that was accessed least recently. As previously mentioned, the amount of cached data can temporarily exceed the limit during the time between cache manager activations.
+
+The cache loader runs only once, right after NGINX starts. It loads metadata about previously cached data into the shared memory zone. Loading the whole cache at once could consume sufficient resources to slow NGINX performance during the first few minutes after startup. To avoid this, configure iterative loading of the cache by including the following parameters to the proxy_cache_path directive:
+
+loader_threshold – Duration of an iteration, in milliseconds (by default, 200)
+loader_files – Maximum number of items loaded during one iteration (by default, 100)
+loader_sleeps – Delay between iterations, in milliseconds (by default, 50)
+
+By default, NGINX Plus caches all responses to requests made with the HTTP GET and HEAD methods the first time such responses are received from a proxied server. 
+
+etc
+etc
+
+
+key value pairs are directives, directives placed inside {} are context
+
+
+MIME types describe the media type of content, either in email, or served by web servers or web applications. They are intended to help provide a hint as to how the content should be processed and displayed. Examples of MIME types: text/html for HTML documents. text/plain for plain text.
+
+307 is a type of temporary redirect. This HTTP response status code means that the URL someone is requesting has temporarily moved to a different URI (User Resource Identifier), but will eventually be back in its original location.
 

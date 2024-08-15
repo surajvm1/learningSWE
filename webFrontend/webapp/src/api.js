@@ -1,6 +1,6 @@
 // src/api.js
 
-const API_URL = 'http://localhost:8900/api';
+const API_URL = 'http://localhost:6000/api';
 
 export const getWeather = async (location) => {
   const res = await fetch(`${API_URL}/getWeather/${location}`);

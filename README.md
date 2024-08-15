@@ -35,8 +35,15 @@ python service
 
 pip install fastapi requests "uvicorn[standard]" SQLAlchemy==1.4.46 psycopg2-binary pydantic pandas redis
 
-# podman build --no-cache -t microserviceb_image .
-# podman run -p 8900:8900 --name microServiceBContainer microserviceb_image
+# to run fastapi service: podman build --no-cache -t internal_weather_service_b_image . 
+# podman run -p 8900:8900 --name internalWeatherServiceBCon internal_weather_service_b_image
+
+# to run the compose file: podman-compose up --build
+
+nodemon install: sudo npm install -g --force nodemon
+but note its for nodejs proejcts not react projects... 
+
+
 
 brew install nginx       
 brew services start nginx
@@ -47,7 +54,7 @@ making changes in the config file
 here in project added config file just for reference how it looks like
 paralelly setup kong gatewaymicroservice
 
-
+307 is a type of temporary redirect. This HTTP response status code means that the URL someone is requesting has temporarily moved to a different URI (User Resource Identifier), but will eventually be back in its original location.
 
 
 
