@@ -1,6 +1,8 @@
 // src/api.js
 
-const API_URL = 'http://localhost:6000/api';
+const API_URL_POST_CALL = 'http://localhost:6000/api'; // Create/Post API call via Nginx and Kong
+
+const API_URL = 'http://localhost:8900/api'; // Read, Update, Delete API directly with backend services, as Kong only supports POST API call load balancing and API gateway logic
 
 export const getWeather = async (location) => {
   const res = await fetch(`${API_URL}/getWeather/${location}`);
@@ -11,7 +13,7 @@ export const getWeather = async (location) => {
 };
 
 export const sendWeather = async (data) => {
-  const res = await fetch(`${API_URL}/sendWeather`, {
+  const res = await fetch(`${API_URL_POST_CALL}/sendWeather`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
