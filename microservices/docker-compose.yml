@@ -93,7 +93,7 @@ services:
     image: devopsfaith/krakend:latest
     container_name: krakend_2
     volumes:
-      - ./krakendApiGateway/config.yml:/etc/krakend/config.yml
+      - .././krakendApiGateway/config.yml:/etc/krakend/config.yml
 #      - .././krakendApiGateway/config.json:/etc/krakend/config.json
     networks:
       - service_network
