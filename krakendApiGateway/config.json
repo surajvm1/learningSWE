@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "name": "Weather API Gateway",
+  "endpoints": [
+    {
+      "endpoint": "/api/getWeather/{location}",
+      "method": "GET",
+      "backend": [
+        {
+          "host": [
+            "http://internal_weather_service_b:8900"
+          ],
+          "url_pattern": "/api/getWeather/{location}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/sendWeather",
+      "method": "POST",
+      "backend": [
+        {
+          "host": [
+            "http://internal_weather_service_b:8900"
+          ],
+          "url_pattern": "/api/sendWeather"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/updateWeather/{location}",
+      "method": "PUT",
+      "backend": [
+        {
+          "host": [
+            "http://internal_weather_service_b:8900"
+          ],
+          "url_pattern": "/api/updateWeather/{location}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/deleteWeather/{location}",
+      "method": "DELETE",
+      "backend": [
+        {
+          "host": [
+            "http://internal_weather_service_b:8900"
+          ],
+          "url_pattern": "/api/deleteWeather/{location}"
+        }
+      ]
+    }
+  ]
+}
