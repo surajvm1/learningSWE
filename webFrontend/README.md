@@ -167,3 +167,18 @@ query param vs path param:
 Path params are used to identify a specific resource, while query params are used to filter and sort the data. Path params are typically used when retrieving a single resource, while query params are used when retrieving multiple resources.
 Path parameters are part of the URL path and are used to identify specific resources. They are typically used to specify a particular resource or resource identifier.
 Query parameters are appended to the end of the URL and are used to sort, filter, or paginate data. They provide additional details or constraints for the requested resource.
+
+
+
+
+
+https://www.iamninad.com/posts/docker-compose-for-your-next-debezium-and-postgres-project/
+
+https://stackoverflow.com/questions/78884629/kong-container-not-sending-api-calls-to-fastapi-service-405-method-not-allowed
+
+https://github.com/Kong/kong/issues/13512
+
+
+
+
+
