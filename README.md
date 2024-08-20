@@ -56,10 +56,11 @@ paralelly setup kong gatewaymicroservice
 
 307 is a type of temporary redirect. This HTTP response status code means that the URL someone is requesting has temporarily moved to a different URI (User Resource Identifier), but will eventually be back in its original location.
 
+A "middleware" is a function that works with every request before it is processed by any specific path operation. And also with every response before returning it.
 
+https://semaphoreci.com/blog/custom-middleware-fastapi
 
-
-
+debug using middleware kong issue??
 
 
 

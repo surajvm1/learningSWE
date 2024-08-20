@@ -30,17 +30,19 @@ async def get_weather(location: str):
     }
     response = requests.get(f'{url}', auth=None, params=params)
     response_dict = json.loads(response.text)
+    # response_json = response.json()
     _location = location
     try:
         _temperatureCelcius = response_dict['current']['temp_c']
+        # _temperatureCelcius = response_json.current.temp_c
         _time = response_dict['location']['localtime']
+        # _time = response_json.location.localtime
+
+        response_data = {
+            "location": _location,
+            "temperature": int(_temperatureCelcius), # to ensure float/int or any values are aligned with WeatherResponse schema model specific for temperature
+            "timestamp": _time,
+        }
+        return response_data
     except Exception as e:
-        print(f'Error with API. Sending null values. Status code: {response.status_code}')
-        _temperatureCelcius = 'Error'
-        _time = 'Error'
-    response_data = {
-        "location": _location,
-        "temperature": _temperatureCelcius,
-        "timestamp": _time
-    }
-    return response_data
+        raise Exception(f"An unexpected error occurred: {str(e)}")

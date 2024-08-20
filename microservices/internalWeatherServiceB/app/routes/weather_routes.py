@@ -8,11 +8,24 @@ from app.services.mongodb_service import fetch_weather_from_mongodb, add_weather
     update_weather_in_mongodb, delete_weather_from_mongodb
 from app.db import get_db
 import asyncio
+import requests
+import json
 
 router = APIRouter()
 
 @router.get("/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str, db: Session = Depends(get_db)):
+    external_weather_service_url = f'http://external_service_a:9900/externalApi/getWeather/{location}'
+    response = requests.get(external_weather_service_url)
+    if response.status_code == 200:
+        print('debug')
+        print(response)
+        print(response.text)
+        weather_data = json.loads(response.text)
+        print(weather_data)
+        return weather_data
+
+    # fallback mechanism
     cache = get_latest_weather(location)
     if cache:
         return cache

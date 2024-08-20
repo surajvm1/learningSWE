@@ -20,6 +20,7 @@ services:
       - postgres_service
       - redis_service
       - mongodb_service
+      - external_service_a
 
   external_service_a:
     build:
@@ -45,7 +46,7 @@ services:
 #      KONG_ADMIN_ERROR_LOG: /dev/stderr
 #      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
 #    volumes:
-#      - .././kongApiGateway/kong.yml:/kong/declarative/kong.yml
+#      - .././apiGateway/kong/kong.yml:/kong/declarative/kong.yml
 #    ports:
 #      - "8000:8000"
 #      - "8001:8001"
@@ -67,7 +68,7 @@ services:
 #      KONG_ADMIN_ERROR_LOG: /dev/stderr
 #      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
 #    volumes:
-#      - .././kongApiGateway/kong.yml:/kong/declarative/kong.yml
+#      - .././apiGateway/kong/kong.yml:/kong/declarative/kong.yml
 #    ports:
 #      - "8002:8000"
 #      - "8003:8001"
@@ -77,24 +78,24 @@ services:
 #      - internal_weather_service_b
 #      - external_service_a
 
-  krakend_1:
+  krakend_gateway_1:
     image: devopsfaith/krakend:latest
     container_name: krakend_1
     volumes:
-      - .././krakendApiGateway/config.yml:/etc/krakend/config.yml
-#      - .././krakendApiGateway/config.json:/etc/krakend/config.json
+      - .././apiGateway/krakend/config.yml:/etc/krakend/config.yml
+#      - .././apiGateway/krakend/config.json:/etc/krakend/config.json
     networks:
       - service_network
     ports:
       - "8080:8080"
     command: ["run", "-c", "/etc/krakend/config.yml"]
 
-  krakend_2:
+  krakend_gateway_2:
     image: devopsfaith/krakend:latest
     container_name: krakend_2
     volumes:
-      - .././krakendApiGateway/config.yml:/etc/krakend/config.yml
-#      - .././krakendApiGateway/config.json:/etc/krakend/config.json
+      - .././apiGateway/krakend/config.yml:/etc/krakend/config.yml
+#      - .././apiGateway/krakend/config.json:/etc/krakend/config.json
     networks:
       - service_network
     ports:
@@ -108,14 +109,14 @@ services:
       NGINX_WORKER_PROCESSES: 4  # Increase the number of worker processes
       NGINX_WORKER_CONNECTIONS: 1024  # Increase the number of worker connections
     volumes:
-      - .././nginxLoadBalancer/nginx.conf:/etc/nginx/nginx.conf
+      - .././loadBalancer/nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - "8765:8765"
     networks:
       - service_network
     depends_on:
-      - krakend_1
-      - krakend_2
+      - krakend_gateway_1
+      - krakend_gateway_2
 #      - kong_gateway_1
 #      - kong_gateway_2
 

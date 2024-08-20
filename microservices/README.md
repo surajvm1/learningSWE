@@ -617,9 +617,38 @@ def startup_event():
 
 https://www.youtube.com/watch?v=ofme2o29ngU
 
+kong error debug?
 
+json_encoders = {
+    datetime: lambda v: v.isoformat(timespec='seconds') if isinstance(v, datetime) else v,
+}
+error debug, why timestamp was not parsing fine?
 
+then cors issue faced in nginx
 
+fastapi weatherresponse schema validation error so that also gave api response issues - so did type casting
+
+why config.json not working in krakend, but only config.yml format?
+
+https://stackoverflow.com/questions/58048879/what-is-the-difference-between-json-method-and-json-loads
+
+The difference between response.json() and json.loads(response.text) primarily revolves around how they handle the decoding of JSON data from a response object in Python's requests library. Here’s a detailed breakdown of their differences:
+Overview of response.json() vs json.loads(response.text)
+Method Context:
+response.json(): This is a method provided by the Response object in the requests library. It is specifically designed to parse the JSON response body directly from the HTTP response.
+json.loads(response.text): This is a function from the built-in json module in Python that converts a JSON-formatted string into a Python dictionary. It requires the string representation of the JSON data.
+Input Type:
+response.json(): Takes no arguments; it operates directly on the Response object.
+json.loads(response.text): Takes a string (the text content of the response) as an argument.
+Encoding Handling:
+response.json(): Automatically handles the response encoding. It attempts to guess the correct encoding of the response content based on the response headers and applies it before parsing the JSON. This makes it more robust against encoding issues.
+json.loads(response.text): Assumes that the string is encoded in UTF-8 by default. If the actual encoding is different, this could lead to errors or incorrect parsing.
+Error Handling:
+response.json(): Raises a ValueError if the response body is not valid JSON or if the response status code indicates an error (e.g., 4xx or 5xx). It also raises an HTTPError if the response indicates a failure.
+json.loads(response.text): Raises a ValueError if the provided string is not valid JSON but does not handle HTTP errors. You must check the response status code separately.
+Performance:
+response.json(): Slightly more efficient as it avoids the overhead of converting the response to text before parsing.
+json.loads(response.text): Requires an additional step of converting the response to text, which may introduce unnecessary overhead.
 
 
 
