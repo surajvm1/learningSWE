@@ -3,7 +3,7 @@ from datetime import datetime
 from app.models.weather import Weather
 from app.schemas.weather_schema import WeatherData
 
-def fetch_weather_from_postgres(db: Session, location: str):
+async def fetch_weather_from_postgres(db: Session, location: str):
     return db.query(Weather).filter(Weather.location == location).order_by(Weather.timestamp.desc()).first()
 
 async def add_weather_to_postgres(db: Session, weather: WeatherData):
