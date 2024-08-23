@@ -650,6 +650,122 @@ Performance:
 response.json(): Slightly more efficient as it avoids the overhead of converting the response to text before parsing.
 json.loads(response.text): Requires an additional step of converting the response to text, which may introduce unnecessary overhead.
 
+once, during testing, my changes were not getting properly build, so had to clean up podman images, volumes, etc etc. 
+
+
+
+
+Ways to Enable Communication Between Services in Different Networks
+Here are some approaches to enable communication between services running in different Docker networks:
+
+1. Connect Containers to Multiple Networks
+You can connect a container to multiple networks, allowing it to communicate with services in both networks. For example, if you want service_a to communicate with service_b, you can connect service_a to both network_a and network_b.
+Here’s how you can modify your Docker Compose file:
+version: '3'
+services:
+  service_a:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: service_a
+    networks:
+      - network_a
+      - network_b  # Connect to both networks
+  service_b:
+    build:
+      context: .
+      dockerfile: Dockerfile  
+    container_name: service_b
+    networks:
+      - network_b
+networks:
+  network_a:
+    name: network_a
+  network_b:
+    name: network_b
+
+In this configuration, service_a can communicate with both service_b and any other service on network_a.
+
+2. Use a Shared Network
+If both services need to communicate frequently, consider using a shared network for both services. This is the simplest approach and avoids the complexity of multiple network connections.
+version: '3'
+services:
+  service_a:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: service_a
+    networks:
+      - shared_network
+  service_b:
+    build:
+      context: .
+      dockerfile: Dockerfile  
+    container_name: service_b
+    networks:
+      - shared_network
+networks:
+  shared_network:
+    name: shared_network
+
+In this setup, both service_a and service_b are on the same shared_network, allowing them to communicate easily.
+
+3. Using Docker Compose's external Networks
+If you have existing networks that you want to use, you can specify them as external networks in your Docker Compose file:
+version: '3'
+services:
+  service_a:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: service_a
+    networks:
+      - external_network_a
+  service_b:
+    build:
+      context: .
+      dockerfile: Dockerfile  
+    container_name: service_b
+    networks:
+      - external_network_b
+networks:
+  external_network_a:
+    external: true
+  external_network_b:
+    external: true
+
+Conclusion
+If you want services in different Docker networks to communicate, you will need to either connect them to multiple networks, use a shared network, or configure your network settings accordingly.
+By default, Docker isolates containers in different networks, so you must explicitly allow communication through one of the methods mentioned above. This isolation is a key feature of Docker networking, providing security and separation between different applications or services.
+
+
+
+In Kafka, the relationship (multiplicity) between partitions and consumers is defined by how partitions are assigned to consumers within a consumer group. The multiplicity is generally described as:
+
+1. One Partition -> One Consumer:
+Each partition in a Kafka topic can be consumed by only one consumer within the same consumer group at a time. This means that a partition is assigned exclusively to one consumer in the group.
+2. One Consumer -> Multiple Partitions:
+A single consumer can be assigned multiple partitions. If there are more partitions than consumers in a consumer group, some consumers will handle more than one partition.
+Scenarios:
+Equal Number of Partitions and Consumers:
+
+If the number of partitions equals the number of consumers in the consumer group, each consumer will be assigned exactly one partition.
+More Partitions than Consumers:
+
+If there are more partitions than consumers, some consumers will be assigned multiple partitions.
+More Consumers than Partitions:
+
+If there are more consumers than partitions, some consumers will not be assigned any partitions. Only the number of consumers equal to the number of partitions will actively consume messages.
+Example:
+Topic with 4 Partitions:
+Scenario 1: 4 consumers (C1, C2, C3, C4) in the same consumer group. Each consumer will consume from one partition.
+Scenario 2: 2 consumers (C1, C2) in the same consumer group. Each consumer will consume from 2 partitions.
+Scenario 3: 6 consumers (C1 to C6) in the same consumer group. Only 4 consumers will consume, and 2 will remain idle.
+Summary:
+One Partition can be consumed by only one consumer within the same consumer group.
+One Consumer can consume data from multiple partitions if the number of partitions exceeds the number of consumers in the group.
+Understanding this multiplicity helps design Kafka consumer groups for efficient data processing, considering the number of partitions and consumers needed.
+
 
 
 
