@@ -63,6 +63,7 @@ https://semaphoreci.com/blog/custom-middleware-fastapi
 debug using middleware kong issue??
 https://stackshare.io/stackups/pypi-confluent-kafka-vs-pypi-kafka-python
 
+https://github.com/Kong/kong/issues/13512
 
 
 
