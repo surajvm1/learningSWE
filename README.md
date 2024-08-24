@@ -61,6 +61,7 @@ A "middleware" is a function that works with every request before it is processe
 https://semaphoreci.com/blog/custom-middleware-fastapi
 
 debug using middleware kong issue??
+https://stackshare.io/stackups/pypi-confluent-kafka-vs-pypi-kafka-python
 
 
 

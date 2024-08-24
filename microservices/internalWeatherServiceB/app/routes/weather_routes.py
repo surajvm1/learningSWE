@@ -8,12 +8,20 @@ from app.services.mongodb_service import fetch_weather_from_mongodb, add_weather
     update_weather_in_mongodb, delete_weather_from_mongodb
 from app.services.external_weather_service import get_weather_data_ext_service
 from app.db import get_db
+from app.kafka_producer import create_kafka_producer
 import asyncio
 
 router = APIRouter()
-
+producer = create_kafka_producer()
 @router.get("/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str, db: Session = Depends(get_db)):
+
+    producer.send('topic_a', {
+        "location": 'hello',
+        "temperature": 300,
+        "timestamp": 'hohoho'
+    })
+    producer.flush()
 
     cache = get_latest_weather(location)
     if cache:
@@ -54,6 +62,15 @@ async def get_weather(location: str, db: Session = Depends(get_db)):
 
 @router.post("/sendWeather")
 async def send_weather(weather: WeatherData, db: Session = Depends(get_db)):
+
+
+    producer.send('topic_a', {
+        "location": 'hello',
+        "temperature": 300,
+        "timestamp": 'hohoho'
+    })
+    producer.flush()
+
     await asyncio.gather(
         add_weather_to_postgres(db, weather),
         add_weather_to_mongodb(weather)
@@ -66,6 +83,15 @@ async def send_weather(weather: WeatherData, db: Session = Depends(get_db)):
 
 @router.put("/updateWeather/{location}")
 async def update_weather(location: str, weather: WeatherData, db: Session = Depends(get_db)):
+
+    producer.send('topic_a', {
+        "location": 'hello',
+        "temperature": 300,
+        "timestamp": 'hohoho'
+    })
+    producer.flush()
+
+
     await asyncio.gather(
         update_weather_in_postgres(db, location, weather),
         update_weather_in_mongodb(location, weather)
@@ -78,6 +104,16 @@ async def update_weather(location: str, weather: WeatherData, db: Session = Depe
 
 @router.delete("/deleteWeather/{location}")
 async def delete_weather(location: str, db: Session = Depends(get_db)):
+
+
+    producer.send('topic_a', {
+        "location": 'hello',
+        "temperature": 300,
+        "timestamp": 'hohoho'
+    })
+    producer.flush()
+
+
     await asyncio.gather(
         delete_weather_from_postgres(db, location),
         delete_weather_from_mongodb(location)

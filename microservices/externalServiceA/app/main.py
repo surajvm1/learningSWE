@@ -6,8 +6,10 @@ import os
 from app.schemas.weather_schema import WeatherData, WeatherResponse
 from dotenv import load_dotenv
 import json
+from app.kafka_producer import create_kafka_producer
 
 app = FastAPI()
+producer = create_kafka_producer()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,6 +24,15 @@ async def server_health_check():
 
 @app.get("/externalApi/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str):
+
+    producer.send('topic_a', {
+        "location": 'hello',
+        "temperature": 300,
+        "timestamp": 'hohoho'
+    })
+    producer.flush()
+
+
     url = f'http://api.weatherapi.com/v1/current.json'
     API_KEY= os.getenv('WEATHER_API_KEY')
     params = {

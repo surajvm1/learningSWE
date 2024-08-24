@@ -153,6 +153,55 @@ services:
     networks:
       - service_network
 
+
+  debezium:
+    image: debezium/connect:latest
+    container_name: debezium
+    ports:
+      - "8083:8083"
+    environment:
+      DEBEZIUM_KAFKA_CONNECT_URL: kafka:9092
+    networks:
+      - service_network
+    volumes:
+      - ./debezium/setup.sh:/setup.sh  # Mount the setup script
+    command: ["bash", "/setup.sh"]  # Run the setup script on startup
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    networks:
+      - service_network
+
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - service_network
+
+  kafka_consumer:
+      build:
+        context: ./kafkaConsumer
+        dockerfile: Dockerfile
+      container_name: kafka_consumer
+      networks:
+        - service_network
+      depends_on:
+        - kafka  # Ensure Kafka is running before starting the consumer
+
 volumes:
   pgdata:
   redisdata:

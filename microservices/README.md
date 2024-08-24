@@ -767,11 +767,49 @@ One Consumer can consume data from multiple partitions if the number of partitio
 Understanding this multiplicity helps design Kafka consumer groups for efficient data processing, considering the number of partitions and consumers needed.
 
 
+podman-compose up --build
+
+podman build --no-cache -t img .
+
+If you need to specify the architecture (like linux/amd64), you can build the images using the --platform flag. However, Podman does not directly support the --platform flag with podman-compose. Instead, you can build your images separately using podman build with the --platform option.
 
 
 
+zookeeper container error: rosetta error: unhandled auxillary vector type 28
+debezium error: rosetta error: unhandled auxillary vector type 28
+kafka error: 
+java.lang.IllegalArgumentException: Unable to canonicalize address zookeeper/<unresolved>:2181 because it's not resolvable
+        at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:78)
+        at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:41)
+        at org.apache.zookeeper.ClientCnxn$SendThread.startConnect(ClientCnxn.java:1157)
+        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1207)
+ERROR Timed out waiting for connection to Zookeeper server [zookeeper:2181]. (io.confluent.admin.utils.ClusterStatus)
+ERROR Unable to resolve address: zookeeper/<unresolved>:2181 (org.apache.zookeeper.client.StaticHostProvider)
+java.net.UnknownHostException: zookeeper
+        at java.base/java.net.InetAddress$CachedAddresses.get(InetAddress.java:801)
+        at java.base/java.net.InetAddress.getAllByName0(InetAddress.java:1533)
+        at java.base/java.net.InetAddress.getAllByName(InetAddress.java:1385)
+        at java.base/java.net.InetAddress.getAllByName(InetAddress.java:1306)
+        at org.apache.zookeeper.client.StaticHostProvider$1.getAllByName(StaticHostProvider.java:88)
+        at org.apache.zookeeper.client.StaticHostProvider.resolve(StaticHostProvider.java:141)
+        at org.apache.zookeeper.client.StaticHostProvider.next(StaticHostProvider.java:368)
+        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1204)
+INFO Session: 0x0 closed (org.apache.zookeeper.ZooKeeper)
+INFO EventThread shut down for session: 0x0 (org.apache.zookeeper.ClientCnxn)
+Using log4j config /etc/kafka/log4j.properties
 
-
+kafka consumer error: Traceback (most recent call last):
+  File "/kafka_consumer/consumer.py", line 33, in <module>
+    consume_topic_a()
+  File "/kafka_consumer/consumer.py", line 5, in consume_topic_a
+    consumer = KafkaConsumer(
+  File "/usr/local/lib/python3.9/site-packages/kafka/consumer/group.py", line 356, in __init__
+    self._client = KafkaClient(metrics=self._metrics, **self.config)
+  File "/usr/local/lib/python3.9/site-packages/kafka/client_async.py", line 244, in __init__
+    self.config['api_version'] = self.check_version(timeout=check_timeout)
+  File "/usr/local/lib/python3.9/site-packages/kafka/client_async.py", line 900, in check_version
+    raise Errors.NoBrokersAvailable()
+kafka.errors.NoBrokersAvailable: NoBrokersAvailable
 
 
 
