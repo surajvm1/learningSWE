@@ -812,6 +812,14 @@ kafka consumer error: Traceback (most recent call last):
 kafka.errors.NoBrokersAvailable: NoBrokersAvailable
 
 
+since it expects a different base os, 
+instead of adding docker image in docker compose with other services 
+i segregated it to a different folder with base image ubuntu
+
+
+seems kafka and debezium container can only run in linux in case of podman, for docker desktop we can pass --platform argument
+so in mac i am getting errors when running container, so other way i am trying is creating dockerfile with base image as ubunutu/linux and on top of that then installing kafka/debezium rather than earlier approach to install the images directly? 
+
 
 
 

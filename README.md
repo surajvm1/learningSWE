@@ -65,7 +65,37 @@ https://stackshare.io/stackups/pypi-confluent-kafka-vs-pypi-kafka-python
 
 https://github.com/Kong/kong/issues/13512
 
+docker vs virtual machine - understand more in detail, somethings seem a little vague for my understanding. 
 
 
 
+https://www.reddit.com/r/macgaming/comments/10wb6k5/what_exactly_is_rosetta/
+
+https://stackoverflow.com/questions/47710767/what-is-the-alternative-to-condition-form-of-depends-on-in-docker-compose-versio
+
+i get Error: unable to start container 7d894592e938ccf2c05115ff41e325cc1970fcce198b6fa04479bf99e1db8f36: preparing container 7d894592e938ccf2c05115ff41e325cc1970fcce198b6fa04479bf99e1db8f36 for attach: generating dependency graph for container 7d894592e938ccf2c05115ff41e325cc1970fcce198b6fa04479bf99e1db8f36: container 8bcd4866f6d4899e50f445ed111d9df1dce063ece75c13c2c523587e423921e5 depends on container b369eb05745b14a5e57f107f55789905b78788f2ec60cda8dd6dc2564fb4caee not found in input list: no such container
+when i run in docker/podman compose,  is there a way to increase timeout of interdependent containers?
+tried adding health check, increasing timeout
+podman-compose up --timeout 300
+or
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+but it did not work, hence for now removed depends_on for kafka in debezium in compose... and  letting debezium up regardless kafka or zookeeper goes up or not
+the bug needs to be debugged, apart from different bugs observed in project
 
