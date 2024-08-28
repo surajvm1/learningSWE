@@ -115,9 +115,9 @@ services:
     networks:
       - service_network
     # commening depends on as sometimes nginx container also dies down on this, have to add say some health checks or timeout so that it dont die down
-#    depends_on:
-#      - krakend_gateway_1
-#      - krakend_gateway_2
+    depends_on:
+      - krakend_gateway_1
+      - krakend_gateway_2
 #      - kong_gateway_1
 #      - kong_gateway_2
 
@@ -154,26 +154,56 @@ services:
     networks:
       - service_network
 
+#  debezium:
+#    image: quay.io/debezium/connect:latest
+##    Using quay.io and not dockerhub
+#    container_name: debezium
+##    depends_on:
+##      kafka:
+##        condition: service_healthy
+#    environment:
+#      BOOTSTRAP_SERVERS: kafka:9092
+#      GROUP_ID: 1
+#      CONFIG_STORAGE_TOPIC: debezium_config
+#      OFFSET_STORAGE_TOPIC: debezium_offset
+#      STATUS_STORAGE_TOPIC: debezium_status
+#    ports:
+#      - "8083:8083"
+#    networks:
+#      - service_network
+##    volumes:
+##      - ./debezium/setup.sh:/setup.sh
+##    command: ["bash", "/setup.sh"]
+
   debezium:
     image: quay.io/debezium/connect:latest
-#    Using quay.io and not dockerhub
+#    build:
+#      context: ./debezium
+#      dockerfile: Dockerfile
     container_name: debezium
-#    depends_on:
-#      kafka:
-#        condition: service_healthy
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
       GROUP_ID: 1
       CONFIG_STORAGE_TOPIC: debezium_config
       OFFSET_STORAGE_TOPIC: debezium_offset
       STATUS_STORAGE_TOPIC: debezium_status
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
     ports:
       - "8083:8083"
     networks:
       - service_network
-#    volumes:
-#      - ./debezium/setup.sh:/setup.sh
-#    command: ["bash", "/setup.sh"]
+    volumes:
+      - ./debezium/connectors/postgres_connector.json:/kafka/config/debezium_connector_config.json
+#    command: ["bash", "-c", "sleep 60 && curl -X POST -H 'Content-Type: application/json' --data @/kafka/config/debezium_connector_config.json http://debezium:8083/connectors"]
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8083/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -183,13 +213,18 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+#      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LOG_DIRS: /var/lib/kafka/data
-#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
     ports:
       - "9092:9092"
+      - "29092:29092"  # Expose for local access
     networks:
       - service_network
 #    healthcheck:
@@ -216,6 +251,8 @@ services:
       container_name: kafka_consumer
       networks:
         - service_network
+      volumes:
+        - /Users/suraj/Desktop:/data
       depends_on:
         - kafka  # Ensure Kafka is running before starting the consumer
 

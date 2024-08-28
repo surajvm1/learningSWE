@@ -1,8 +1,10 @@
 version: 3
 name: Weather API Gateway
+timeout: 2000ms  # Global timeout
 endpoints:
 - endpoint: /api/getWeather/{location}
   method: GET
+  timeout: 5000ms  # Endpoint-specific timeout
   backend:
   - host:
     - http://internal_weather_service_b:8900

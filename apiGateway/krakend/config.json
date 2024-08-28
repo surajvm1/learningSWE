@@ -1,6 +1,7 @@
 {
   "version": 2,
   "name": "Weather API Gateway",
+  "timeout": "2000ms",
   "endpoints": [
     {
       "endpoint": "/api/getWeather/{location}",
@@ -10,7 +11,8 @@
           "host": [
             "http://internal_weather_service_b:8900"
           ],
-          "url_pattern": "/api/getWeather/{location}"
+          "url_pattern": "/api/getWeather/{location}",
+          "timeout": "5000ms"
         }
       ]
     },

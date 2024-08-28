@@ -25,12 +25,19 @@ async def server_health_check():
 @app.get("/externalApi/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str):
 
-    producer.send('topic_a', {
-        "location": 'hello',
-        "temperature": 300,
-        "timestamp": 'hohoho'
-    })
-    producer.flush()
+    # producer.send('topic_a', {
+    #     "location": 'hello',
+    #     "temperature": 300,
+    #     "timestamp": 'hohoho'
+    # })
+    # producer.flush()
+
+    # producer.produce('topic_a', key=None, value=json.dumps({
+    #     "location": 'hello',
+    #     "temperature": 300,
+    #     "timestamp": 'hohoho'
+    # }))
+    # producer.flush()
 
 
     url = f'http://api.weatherapi.com/v1/current.json'

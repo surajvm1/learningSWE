@@ -99,3 +99,21 @@ or
 but it did not work, hence for now removed depends_on for kafka in debezium in compose... and  letting debezium up regardless kafka or zookeeper goes up or not
 the bug needs to be debugged, apart from different bugs observed in project
 
+krakend context deadline exceeded error - increase timeout
+
+
+https://stackoverflow.com/questions/62198606/kafkatimeouterror-failed-to-update-metadata-after-60-0-secs
+
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='external_service_a', port=9900): Max retries exceeded with url: /externalApi/getWeather/delhi (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff94ecda30>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+https://serverfault.com/questions/967580/chmod-changing-permissions-of-myscript-sh-operation-not-permitted
+
+https://stackoverflow.com/questions/68126583/kafka-connect-failed-to-connect-to-localhost-port-8083-connection-refused
+
+kafka-topics --bootstrap-server localhost:29092 --list
+kafka-topics --bootstrap-server kafka:9092 --list
+
+-> running this to create topic in kafka terminal: kafka-topics --create --topic topic_a --bootstrap-server kafka:9092 --partitions 1 --replication-factor 1
+and then running producer consumer code
+
+https://github.com/confluentinc/cp-docker-images/issues/272
