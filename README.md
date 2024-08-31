@@ -117,3 +117,85 @@ kafka-topics --bootstrap-server kafka:9092 --list
 and then running producer consumer code
 
 https://github.com/confluentinc/cp-docker-images/issues/272
+inside debezium container: curl -X POST -H "Content-Type: application/json" --data @/kafka/config/debezium_connector_config.json http://debezium:8083/connectors
+
+run kafka consumer as fastapi application on 2 ports
+
+have project in java, go, backend also for learnign
+
+debezium akfka connect script execution timing delayed as it was hanging to continuing to cehck akfak connect long long, when i logged into container and executed script it worked, so better have to wait for sometime and then only execute script
+
+curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8083/connectors
+curl -s -o /dev/null -w ''%{http_code}'' http://debezium:8083/connectors
+
+https://www.reddit.com/r/docker/comments/1f1wqnb/how_i_reduced_docker_image_size_from_588_mb_to/
+
+when i add cmd step to trigger an sh script running a curl command in compose file, i am not getting any status of container, but when i run container normally and logging to it and then run curl commadn manually i get the container with proper status code, why?
+
+ podman-compose -f temp-compose.yml up --build --no-cache 
+
+podman logs debezium | less
+podman history quay.io/debezium/connect:latest
+podman inspect debezium
+podman-compose -f temp-compose.yml up -d --build --force-recreate
+podman image inspect quay.io/debezium/connect:latest
+
+podman ps -aq -> show containers which are in exit state
+podman rm -f $(podman ps -aq)
+podman compose down
+sudo lsof -i -P | grep LISTEN | grep :8003
+
+podman-compose -f temp-compose.yml up --build --no-cache        
+
+https://www.docker.com/blog/docker-best-practices-choosing-between-run-cmd-and-entrypoint/
+https://ollama.com/library/llama3.1
+https://hub.docker.com/r/debezium/postgres
+https://docs.docker.com/reference/dockerfile/#entrypoint
+https://github.com/debezium/debezium-examples/blob/main/tutorial/docker-compose-postgres.yaml
+https://stackoverflow.com/questions/30063907/docker-compose-how-to-execute-multiple-commands
+https://quay.io/repository/debezium/connect?tab=info
+https://hub.docker.com/r/debezium/connect
+https://github.com/debezium/container-images/blob/main/connect-base/3.0/Dockerfile
+https://hub.docker.com/r/debezium/connect/tags?page=&page_size=&ordering=&name=sha256%3A4f5ff656580bbf4228bbadf94f0fd36311db5877586532347c9ef1e1daa66c28
+https://stackoverflow.com/questions/41694329/docker-run-override-entrypoint-with-shell-script-which-accepts-arguments
+https://stackoverflow.com/questions/4421633/who-is-listening-on-a-given-tcp-port-on-mac-os-x
+https://dev.to/kittipat1413/docker-run-vs-cmd-vs-entrypoint-demystifying-the-differences-2a4p
+
+https://www.dbi-services.com/blog/postgresql-when-wal_level-to-logical/
+https://github.com/bitnami/charts/issues/6830
+
+
+psql -U postgres_user_suraj -d weatherdb
+SHOW wal_level; (definitely put semi colon)
+
+root@1d86a12c71f9:/# psql -U postgres_user_suraj -d weatherdb
+psql (13.16 (Debian 13.16-1.pgdg120+1))
+Type "help" for help.
+
+weatherdb=# SHOW wal_level;
+ wal_level 
+-----------
+ logical
+(1 row)
+
+weatherdb=# ALTER SYSTEM SET wal_level = logical;
+ALTER SYSTEM
+weatherdb=# 
+weatherdb=# select * from weather limit 10;
+
+https://sqlalche.me/e/14/e3q8
+
+https://stackoverflow.com/questions/30848670/how-to-customize-the-configuration-file-of-the-official-postgresql-docker-image?rq=3
+
+
+
+
+weatherdb=# SELECT * FROM pg_stat_replication;
+ pid | usesysid |       usename       |  application_name  | client_addr | client_hostname | client_port |         backend_start         | backend_xmin |   state   | sent_lsn  | write_lsn | flush_lsn | replay_lsn | write_lag | flush_lag | replay_lag | sync_priority | sync_state |          reply_time           
+-----+----------+---------------------+--------------------+-------------+-----------------+-------------+-------------------------------+--------------+-----------+-----------+-----------+-----------+------------+-----------+-----------+------------+---------------+------------+-------------------------------
+  38 |       10 | postgres_user_suraj | Debezium Streaming | 10.89.0.218 |                 |       55018 | 2024-08-31 18:16:15.936886+00 |              | streaming | 0/15F77C0 | 0/15F77C0 |           |            |           |           |            |             0 | async      | 1999-12-21 01:02:35.607882+00
+
+
+https://severalnines.com/blog/using-postgresql-replication-slots/
+
+

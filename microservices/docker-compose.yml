@@ -128,6 +128,9 @@ services:
       POSTGRES_USER: postgres_user_suraj
       POSTGRES_PASSWORD: postgres_pws_1234
       POSTGRES_DB: weatherdb
+#      POSTGRES_INITDB_ARGS: "--data-checksums"
+#      POSTGRES_WAL_LEVEL: logical
+#      PG_JOURNAL_WAL_LEVEL: logical
     ports:
       - "5432:5432"
     volumes:
@@ -197,12 +200,24 @@ services:
       - service_network
     volumes:
       - ./debezium/connectors/postgres_connector.json:/kafka/config/debezium_connector_config.json
-#    command: ["bash", "-c", "sleep 60 && curl -X POST -H 'Content-Type: application/json' --data @/kafka/config/debezium_connector_config.json http://debezium:8083/connectors"]
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8083/" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - ./debezium/setup.sh:/kafka/register_connector.sh
+    entrypoint: "sh /kafka/register_connector.sh"
+#    command: [ "sh", "-c", "start", "&", "/kafka/register_connector.sh"]
+    #    command: ["bash", "-c", "sleep 60 && curl -X POST -H 'Content-Type: application/json' --data @/kafka/config/debezium_connector_config.json http://debezium:8083/connectors"]
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:8083/" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+
+      #    command: "sh -c start & /kafka/register_connector.sh"
+      #entrypoint: "sh /kafka/register_connector.sh"
+    #    command: bash -c "chmod+x register_connector.sh && register_connector.sh"
+  #    command: [sh, -c, "chmod+x register_connector.sh && register_connector.sh"]
+  #    command: ["sh", "/kafka/register_connector.sh"]
+  #    command: ["sh", "register_connector.sh"]
+  #    command: ["bash", "-c", "sleep 60 && curl -X POST -H 'Content-Type: application/json' --data @/kafka/config/debezium_connector_config.json http://debezium:8083/connectors"]
+
 
 
   kafka:
@@ -244,11 +259,23 @@ services:
     networks:
       - service_network
 
-  kafka_consumer:
+  kafka_consumer_backend_services:
       build:
-        context: ./kafkaConsumer
+        context: ./kafkaConsumer/consumerA
         dockerfile: Dockerfile
-      container_name: kafka_consumer
+      container_name: kafka_consumer_backend_services
+      networks:
+        - service_network
+      volumes:
+        - /Users/suraj/Desktop:/data
+      depends_on:
+        - kafka  # Ensure Kafka is running before starting the consumer
+
+  kafka_consumer_debezium:
+      build:
+        context: ./kafkaConsumer/consumerB
+        dockerfile: Dockerfile
+      container_name: kafka_consumer_debezium
       networks:
         - service_network
       volumes:

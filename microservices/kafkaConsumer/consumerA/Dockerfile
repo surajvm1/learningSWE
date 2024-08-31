@@ -5,4 +5,4 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 COPY . /$APP_HOME
 RUN pip install -r requirements.txt
-CMD ["python", "consumer.py"]
+CMD ["python", "consumer_backend_services.py"]

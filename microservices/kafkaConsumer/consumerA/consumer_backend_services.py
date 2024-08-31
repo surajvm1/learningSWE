@@ -48,7 +48,7 @@ def consume_topic_a():
     consumer = Consumer({
         # 'bootstrap.servers': 'localhost:29092',  # Use the host port for local testing
         'bootstrap.servers': 'kafka:9092',
-        'group.id': 'my_group',
+        'group.id': 'backend_group',
         'auto.offset.reset': 'earliest'
     })
 

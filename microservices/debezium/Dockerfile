@@ -1,11 +1,7 @@
 FROM quay.io/debezium/connect:latest
-
-# Copy the initialization script
-COPY setup.sh /setup.sh
-COPY connectors/postgres_connector.json /kafka/config/debezium_connector_config.json
-
-# Make the script executable
-# RUN chmod +x /setup.sh
-
-# Start Debezium and run the initialization script
+ENV APP_HOME /debezium
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+COPY . /$APP_HOME
+RUN chmod +x /temp_setup.sh
 CMD ["bash", "/setup.sh"]
