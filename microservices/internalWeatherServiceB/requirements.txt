@@ -37,3 +37,4 @@ websockets==11.0.3
 zipp==3.15.0
 confluent-kafka==2.5
 kafka-python==2.0.2
+jsonschema==4.19.2

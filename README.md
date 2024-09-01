@@ -198,4 +198,21 @@ weatherdb=# SELECT * FROM pg_stat_replication;
 
 https://severalnines.com/blog/using-postgresql-replication-slots/
 
+[appuser@c8150e92e7d3 ~]$ kafka-topics --list --bootstrap-server localhost:9092
+__consumer_offsets
+dbserver1.public.weather
+debezium_config
+debezium_offset
+debezium_status
+topic_a
+
+https://medium.com/@oredata-engineering/setting-up-prometheus-grafana-for-kafka-on-docker-8a692a45966c
+
+https://www.tutorialsteacher.com/python/classmethod-decorator
+
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 sparkStream.py
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1 sparkStream.py
+
+do loadbalancing and see APIs
+
 

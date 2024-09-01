@@ -8,39 +8,35 @@ from app.services.mongodb_service import fetch_weather_from_mongodb, add_weather
     update_weather_in_mongodb, delete_weather_from_mongodb
 from app.services.external_weather_service import get_weather_data_ext_service
 from app.db import get_db
-from app.kafka_producer import create_kafka_producer
 import asyncio
 import json
+import requests
 
 router = APIRouter()
-producer = create_kafka_producer()
+
+def send_data_kafka(payload):
+    # Headers, if required (e.g., for content type, authorization, etc.)
+    headers = {
+        "Content-Type": "application/json",
+    }
+    kafka_producer_url = f'http://kafka_producer:8325/sendKafka'
+    response = requests.post(kafka_producer_url, json=payload, headers=headers)
+    if response.status_code == 200:
+        print("Request was successful to kafka")
+        print("Response:", response.json())  # Print response data
+    else:
+        print(f"Failed to post data. Status code: {response.status_code}")
+        print("Response:", response.text)
+
 @router.get("/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str, db: Session = Depends(get_db)):
 
-    # producer.send('topic_a', {
-    #     "location": 'hello',
-    #     "temperature": 300,
-    #     "timestamp": 'hohoho'
-    # })
-    # producer.flush()
-
-    def delivery_report(err, msg):
-        if err is not None:
-            print(f"Message delivery failed: {err}")
-        else:
-            print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
-
-    try:
-        producer.produce('topic_a', key=None, value=json.dumps({
-            "location": 'hello',
-            "temperature": 300,
-            "timestamp": 'hohoho'
-        }),
-        callback = delivery_report
-        )
-        producer.flush()
-    except Exception as e:
-        print(e)
+    payload = {
+        "timestamp": "value1",
+        "temperature": 40,
+        "location":"hohoho"
+    }
+    send_data_kafka(payload)
 
     cache = get_latest_weather(location)
     if cache:

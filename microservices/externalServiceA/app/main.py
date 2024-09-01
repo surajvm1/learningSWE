@@ -6,10 +6,8 @@ import os
 from app.schemas.weather_schema import WeatherData, WeatherResponse
 from dotenv import load_dotenv
 import json
-from app.kafka_producer import create_kafka_producer
 
 app = FastAPI()
-producer = create_kafka_producer()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,22 +20,31 @@ load_dotenv()
 async def server_health_check():
     return {"Status": "External Weather Service Server healthy!"}
 
+
+def send_data_kafka(payload):
+    # Headers, if required (e.g., for content type, authorization, etc.)
+    headers = {
+        "Content-Type": "application/json",
+    }
+    kafka_producer_url = f'http://kafka_producer:8325/sendKafka'
+    response = requests.post(kafka_producer_url, json=payload, headers=headers)
+    if response.status_code == 200:
+        print("Request was successful to kafka")
+        print("Response:", response.json())  # Print response data
+    else:
+        print(f"Failed to post data. Status code: {response.status_code}")
+        print("Response:", response.text)
+
 @app.get("/externalApi/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str):
 
-    # producer.send('topic_a', {
-    #     "location": 'hello',
-    #     "temperature": 300,
-    #     "timestamp": 'hohoho'
-    # })
-    # producer.flush()
-
-    # producer.produce('topic_a', key=None, value=json.dumps({
-    #     "location": 'hello',
-    #     "temperature": 300,
-    #     "timestamp": 'hohoho'
-    # }))
-    # producer.flush()
+    # for kafka produce
+    payload = {
+        "timestamp": "value1",
+        "temperature": 40,
+        "location":"hohoho"
+    }
+    send_data_kafka(payload)
 
 
     url = f'http://api.weatherapi.com/v1/current.json'

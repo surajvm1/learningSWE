@@ -79,7 +79,7 @@ services:
 #      - external_service_a
 
   krakend_gateway_1:
-    image: devopsfaith/krakend:latest
+    image: devopsfaith/krakend:2.7.0
     container_name: krakend_1
     volumes:
       - .././apiGateway/krakend/config.yml:/etc/krakend/config.yml
@@ -91,7 +91,7 @@ services:
     command: ["run", "-c", "/etc/krakend/config.yml"]
 
   krakend_gateway_2:
-    image: devopsfaith/krakend:latest
+    image: devopsfaith/krakend:2.7.0
     container_name: krakend_2
     volumes:
       - .././apiGateway/krakend/config.yml:/etc/krakend/config.yml
@@ -103,7 +103,7 @@ services:
     command: ["run", "-c", "/etc/krakend/config.yml"]
 
   nginx_load_balancer:
-    image: nginx:latest
+    image: nginx:1.27.1
     container_name: nginx_load_balancer
     environment:
       NGINX_WORKER_PROCESSES: 4  # Increase the number of worker processes
@@ -179,7 +179,7 @@ services:
 ##    command: ["bash", "/setup.sh"]
 
   debezium:
-    image: quay.io/debezium/connect:latest
+    image: quay.io/debezium/connect:2.7
 #    build:
 #      context: ./debezium
 #      dockerfile: Dockerfile
@@ -221,7 +221,7 @@ services:
 
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.4.6
     container_name: kafka
     depends_on:
       - zookeeper
@@ -249,7 +249,7 @@ services:
 #      retries: 5
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.4.6
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -261,7 +261,7 @@ services:
 
   kafka_consumer_backend_services:
       build:
-        context: ./kafkaConsumer/consumerA
+        context: kafkaConsumer/consumerBackendServices
         dockerfile: Dockerfile
       container_name: kafka_consumer_backend_services
       networks:
@@ -273,7 +273,7 @@ services:
 
   kafka_consumer_debezium:
       build:
-        context: ./kafkaConsumer/consumerB
+        context: kafkaConsumer/consumerDebezium
         dockerfile: Dockerfile
       container_name: kafka_consumer_debezium
       networks:
@@ -282,6 +282,31 @@ services:
         - /Users/suraj/Desktop:/data
       depends_on:
         - kafka  # Ensure Kafka is running before starting the consumer
+
+  kafka_producer:
+    build:
+      context: kafkaProducer
+      dockerfile: Dockerfile
+    container_name: kafka_producer
+    networks:
+      - service_network
+    depends_on:
+      - kafka  # Ensure Kafka is running before starting the consumer
+
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.6
+    container_name: schema-registry
+    depends_on:
+      - kafka
+    environment:
+      SCHEMA_REGISTRY_KAFKA_URL: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+    ports:
+      - "8081:8081"  # Expose Schema Registry
+    networks:
+      - service_network
 
 volumes:
   pgdata:
