@@ -7,6 +7,10 @@ import json
 
 app = FastAPI()
 
+@app.get("/")
+def server_health_check():
+    return {"Status": "Kafka Producer Service Server healthy!"}
+
 def create_kafka_producer():
     producer = Producer({'bootstrap.servers': 'kafka:9092'})  # Use the service name in Docker Compose
     # producer = Producer({'bootstrap.servers': 'localhost:29092'}) # Use the host port for local testing
@@ -36,9 +40,9 @@ class WeatherDataPayload(BaseModel):
 # Create the POST endpoint
 @app.post("/sendKafka")
 async def publish_to_kafka(weather_data_payload: WeatherDataPayload):
+    # Convert the Pydantic model to a JSON string
+    weather_data_json = weather_data_payload.json()
     try:
-        # Convert the Pydantic model to a JSON string
-        weather_data_json = weather_data_payload.json()
         producer.produce('topic_a', key=None, value=weather_data_json, callback=delivery_report)
         producer.flush()
     except Exception as e:

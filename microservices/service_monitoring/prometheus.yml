@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s  # Set the scrape interval to every 15 seconds
+
+scrape_configs:
+  - job_name: 'docker_containers'
+    static_configs:
+      - targets:
+        - 'internal_weather_service_b:8900'
+        - 'external_service_a:9900'
+        - 'krakend_1:8080'
+        - 'krakend_2:8081'
+        - 'nginx_load_balancer:8765'
+        - 'postgres_service:5432'
+        - 'redis_service:6379'
+        - 'mongodb_service:27017'
+        - 'debezium:8083'
+        - 'kafka:9092'
+        - 'zookeeper:2181'
+#        - 'kafka_consumer_backend_services:your_port'  # Simple python app
+#        - 'kafka_consumer_debezium:your_port'  # Simple python app
+        - 'kafka_producer:8325'
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']  # cAdvisor metrics endpoint
+
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['node_exporter:9100']  # Node Exporter metrics endpoint

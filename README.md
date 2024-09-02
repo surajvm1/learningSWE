@@ -213,6 +213,45 @@ https://www.tutorialsteacher.com/python/classmethod-decorator
 spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 sparkStream.py
 spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1 sparkStream.py
 
-do loadbalancing and see APIs
+do load balancing and see APIs
+
+chmod +x register_schema.sh: chmod +x on a file (your script) only means, that you'll make it executable.
+
+https://stackoverflow.com/questions/40714583/how-to-specify-a-port-to-run-a-create-react-app-based-project
+
+grafana password username: admin, admin
+
+https://stackoverflow.com/questions/74029504/spring-prometheus-grafana-err-reading-prometheus-post-http-localhost90
+hence in grafana, i had to use this url: http://prometheus:9090/
+
+google cadvisor on another website
+
+
+https://github.com/google/cadvisor/issues/1843
+https://stackoverflow.com/questions/71977532/podman-mount-host-volume-return-error-statfs-no-such-file-or-directory-in-ma
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

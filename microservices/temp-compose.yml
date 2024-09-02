@@ -1,0 +1,57 @@
+##
+#version: '3'
+#networks:
+#  service_network:
+#    name: service_compose_network
+#
+#services:
+#  cadvisor:
+#    image: gcr.io/cadvisor/cadvisor:v0.49.1
+##    image: gcr.io/cadvisor/cadvisor:v0.47.1
+#    container_name: cadvisor
+##    platform: linux/aarch64
+#    ports:
+#      - "8085:8080"  # Expose cAdvisor on port 8085
+#    volumes:
+##      - /var/run:/var/run:ro  # Required for cAdvisor to access Docker metrics
+###      - /sys:/sys:ro
+###      - /var/lib/docker/:/var/lib/docker:ro
+##      - /:/rootfs:ro
+##      - /cgroup:/sys/fs/cgroup:ro
+##      - /dev/disk/:/dev/disk:ro
+#      - /var/run:/var/run:ro  # Required for cAdvisor to access Docker metrics
+#      - /sys:/sys:ro          # Required for cAdvisor to access system metrics
+#      - /var/lib/docker/:/var/lib/docker:ro  # Required for cAdvisor to access Docker container metrics
+#    networks:
+#      - service_network
+
+#version: '3'
+#services:
+#  cadvisor:
+#      image: gcr.io/cadvisor/cadvisor:v0.47.1
+#      hostname: cadvisor
+#      platform: linux/aarch64
+#      volumes:
+#        - "/:/rootfs:ro"
+#        - "/var/run:/var/run:ro"
+#        - "/sys:/sys:ro"
+##        - "/var/lib/docker/:/var/lib/docker:ro"
+#        - "/dev/disk/:/dev/disk:ro"
+#      ports:
+#        - "8080:8080"
+
+version: '3'
+
+services:
+  cadvisor:
+      image: gcr.io/cadvisor/cadvisor:v0.47.1
+      hostname: cadvisor
+      platform: linux/aarch64
+      volumes:
+        - "/:/rootfs:ro"
+        - "/var/run:/var/run:ro"
+        - "/sys:/sys:ro"
+        - "/var/lib/docker/:/var/lib/docker:ro"
+        - "/dev/disk/:/dev/disk:ro"
+      ports:
+        - "8080:8080"

@@ -42,6 +42,7 @@ import time
 
 ## Confluent Kafka implement
 
+
 ## for only 1 topic, define other topic b...
 def consume_topic_a():
     print('Consumer started to consume from topics')
@@ -73,9 +74,13 @@ def consume_topic_a():
                         break
                 else:
                     # Process the message and dump it to the mounted directory
+                    # Deserialize the message
+                    json_value = msg.value().decode('utf-8')
+                    print(f"Received message: {json_value}")
                     with open('/data/topic_a_data.json', 'a') as f:  # Save to /data inside the container
-                        json.dump(msg.value().decode('utf-8'), f)
+                        json.dump(json_value, f)
                         f.write('\n')  # Write each message on a new line
+
         except KafkaException as e:
             print(f"Kafka exception occurred: {e}")
         # Wait for a few seconds before trying to subscribe again
