@@ -11,19 +11,12 @@ app = FastAPI()
 def server_health_check():
     return {"Status": "Kafka Producer Service Server healthy!"}
 
+# Create a Kafka producer - Confluent Kafka approach
 def create_kafka_producer():
     producer = Producer({'bootstrap.servers': 'kafka:9092'})  # Use the service name in Docker Compose
     # producer = Producer({'bootstrap.servers': 'localhost:29092'}) # Use the host port for local testing
     return producer
 
-# Create a Kafka producer - Native
-# def create_kafka_producer():
-#     producer = KafkaProducer(
-#         # bootstrap_servers='kafka:9092',  # Use the service name in Docker Compose
-#         bootstrap_servers='localhost:29092',  # Use the host port for local testing
-#         value_serializer=lambda v: json.dumps(v).encode('utf-8')  # Serialize JSON
-#     )
-#     return producer
 producer = create_kafka_producer()
 
 def delivery_report(err, msg):
@@ -47,3 +40,14 @@ async def publish_to_kafka(weather_data_payload: WeatherDataPayload):
         producer.flush()
     except Exception as e:
         print(e)
+
+"""
+# Create a Kafka producer - Native approach
+def create_kafka_producer():
+    producer = KafkaProducer(
+        # bootstrap_servers='kafka:9092',  # Use the service name in Docker Compose
+        bootstrap_servers='localhost:29092',  # Use the host port for local testing
+        value_serializer=lambda v: json.dumps(v).encode('utf-8')  # Serialize JSON
+    )
+    return producer
+"""

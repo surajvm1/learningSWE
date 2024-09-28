@@ -9,7 +9,6 @@ async def fetch_weather_from_postgres(db: Session, location: str):
 async def add_weather_to_postgres(db: Session, weather: WeatherData):
     weather_data = weather.dict()
     weather_data['timestamp'] = datetime.utcnow()
-
     db_weather = Weather(**weather_data)
     db.add(db_weather)
     db.commit()
@@ -21,7 +20,6 @@ async def update_weather_in_postgres(db: Session, location: str, weather: Weathe
     if db_weather:
         weather_data = weather.dict()
         weather_data['timestamp'] = datetime.utcnow()
-
         for key, value in weather_data.items():
             setattr(db_weather, key, value)
         db.commit()

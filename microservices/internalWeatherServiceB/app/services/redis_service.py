@@ -28,6 +28,5 @@ def delete_latest_weather(location: str):
     keys = redis_client.keys(f"{location}:*")
     if not keys:
         return 0
-
     latest_key = max(keys)
     return redis_client.delete(latest_key)

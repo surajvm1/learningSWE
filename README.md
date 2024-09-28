@@ -230,13 +230,32 @@ google cadvisor on another website
 https://github.com/google/cadvisor/issues/1843
 https://stackoverflow.com/questions/71977532/podman-mount-host-volume-return-error-statfs-no-such-file-or-directory-in-ma
 
+kafka-topics --bootstrap-server kafka:9092 --list
+topic_splitpay
+
+kafka-consumer-groups --bootstrap-server kafka:9092 --version
+
+kafka-console-consumer --bootstrap-server localhost:9092 --topic topic_splitpay --from-beginning
+-- to view all messages inside kafka
+
+What's the difference between ARM and x86? ARM architecture uses a RISC approach for efficiency and lower power, ideal for mobile devices. x86 employs a CISC approach for high performance, suited for desktops and servers. What is register-based processing?
+
+add monitoring to the system,
+
+add flink also in the system integrate it... 
+
+add 
 
 
 
+#deebzium push???event
+#kafka schema registry also implement???
+#docker image version be specific
+#UI on nginx, kafka krakend???
 
+alerting promethusm to addd. 
 
-
-
+load balancing to do of the APIs 
 
 
 

@@ -20,28 +20,26 @@ def send_data_kafka(payload):
         "Content-Type": "application/json",
     }
     kafka_producer_url = f'http://kafka_producer:8325/sendKafka'
-    response = requests.post(kafka_producer_url, json=payload, headers=headers)
-    if response.status_code == 200:
-        print("Request was successful to kafka")
-        print("Response:", response.json())  # Print response data
-    else:
-        print(f"Failed to post data. Status code: {response.status_code}")
-        print("Response:", response.text)
+    try:
+        response = requests.post(kafka_producer_url, json=payload, headers=headers)
+        response_status_code = response.status_code
+        if response_status_code == 200:
+            print("Data published to Kafka")
+        else:
+            print(f"Failed to post data. Status code: {response_status_code}")
+    except Exception as e:
+        print(f"An error occurred while posting data: {e}")
 
 @router.get("/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str, db: Session = Depends(get_db)):
-
-    payload = {
-        "timestamp": "value1",
-        "temperature": 40,
-        "location":"hohoho"
-    }
-    send_data_kafka(payload)
 
     cache = get_latest_weather(location)
     if cache:
         return cache
 
+    payload = {
+        "service": "internalService"
+    }
     weather = await fetch_weather_from_postgres(db, location)
     if weather:
         set_weather(weather.location, weather.temperature) ## caching in redis
@@ -50,6 +48,8 @@ async def get_weather(location: str, db: Session = Depends(get_db)):
             "temperature": weather.temperature,
             "timestamp": weather.timestamp
         }
+        payload = {**payload, **response_data}
+        send_data_kafka(payload)
         return response_data
 
     weather = await fetch_weather_from_mongodb(location)
@@ -60,6 +60,8 @@ async def get_weather(location: str, db: Session = Depends(get_db)):
             "temperature": weather["temperature"],
             "timestamp": weather["timestamp"]
         }
+        payload = {**payload, **response_data}
+        send_data_kafka(payload)
         return response_data
 
     # fallback mechanism
@@ -71,13 +73,14 @@ async def get_weather(location: str, db: Session = Depends(get_db)):
             "temperature": weather["temperature"],
             "timestamp": weather["timestamp"]
         }
+        payload = {**payload, **response_data}
+        send_data_kafka(payload)
         return response_data
 
     raise HTTPException(status_code=404, detail="Weather data not found")
 
 @router.post("/sendWeather")
 async def send_weather(weather: WeatherData, db: Session = Depends(get_db)):
-
     await asyncio.gather(
         add_weather_to_postgres(db, weather),
         add_weather_to_mongodb(weather)
@@ -90,7 +93,6 @@ async def send_weather(weather: WeatherData, db: Session = Depends(get_db)):
 
 @router.put("/updateWeather/{location}")
 async def update_weather(location: str, weather: WeatherData, db: Session = Depends(get_db)):
-
     await asyncio.gather(
         update_weather_in_postgres(db, location, weather),
         update_weather_in_mongodb(location, weather)
@@ -103,7 +105,6 @@ async def update_weather(location: str, weather: WeatherData, db: Session = Depe
 
 @router.delete("/deleteWeather/{location}")
 async def delete_weather(location: str, db: Session = Depends(get_db)):
-
     await asyncio.gather(
         delete_weather_from_postgres(db, location),
         delete_weather_from_mongodb(location)
@@ -113,55 +114,3 @@ async def delete_weather(location: str, db: Session = Depends(get_db)):
         "message": "Weather data deleted successfully"
     }
     return response_data
-
-
-"""
-from confluent_kafka.admin import AdminClient, NewTopic
-from confluent_kafka import Producer
-
-def create_kafka_topic(topic_name, num_partitions=1, replication_factor=1):
-    admin_client = AdminClient({'bootstrap.servers': 'kafka:9092'})
-    
-    # Check if topic already exists
-    topic_metadata = admin_client.list_topics(timeout=10)
-    if topic_name not in topic_metadata.topics:
-        topic = NewTopic(topic_name, num_partitions=num_partitions, replication_factor=replication_factor)
-        admin_client.create_topics([topic])
-        print(f"Topic '{topic_name}' created.")
-
-def create_kafka_producer():
-    producer = Producer({'bootstrap.servers': 'kafka:9092'})
-    return producer
-
-# Create the topic if it doesn't exist
-create_kafka_topic('topic_a')
-
-# Produce a message to the topic
-producer = create_kafka_producer()
-producer.produce('topic_a', key=None, value='{"location": "hello", "temperature": 300, "timestamp": "hohoho"}')
-producer.flush()
-
------------
-
-from confluent_kafka import Producer, KafkaError
-
-def create_kafka_producer():
-    producer = Producer({'bootstrap.servers': 'kafka:9092'})
-    return producer
-
-def delivery_report(err, msg):
-    if err is not None:
-        print(f"Message delivery failed: {err}")
-    else:
-        print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
-
-producer = create_kafka_producer()
-try:
-    producer.produce('topic_a', key=None, value='{"location": "hello", "temperature": 300, "timestamp": "hohoho"}', callback=delivery_report)
-    producer.flush()
-except KafkaError as e:
-    if e.args[0].code() == KafkaError.UNKNOWN_TOPIC_OR_PART:
-        # Handle topic creation if needed
-        create_kafka_topic('topic_a')
-
-"""

@@ -20,33 +20,23 @@ load_dotenv()
 async def server_health_check():
     return {"Status": "External Weather Service Server healthy!"}
 
-
 def send_data_kafka(payload):
-    # Headers, if required (e.g., for content type, authorization, etc.)
     headers = {
         "Content-Type": "application/json",
     }
     kafka_producer_url = f'http://kafka_producer:8325/sendKafka'
-    response = requests.post(kafka_producer_url, json=payload, headers=headers)
-    if response.status_code == 200:
-        print("Request was successful to kafka")
-        print("Response:", response.json())  # Print response data
-    else:
-        print(f"Failed to post data. Status code: {response.status_code}")
-        print("Response:", response.text)
+    try:
+        response = requests.post(kafka_producer_url, json=payload, headers=headers)
+        response_status_code = response.status_code
+        if response_status_code == 200:
+            print("Data published to Kafka")
+        else:
+            print(f"Failed to post data. Status code: {response_status_code}")
+    except Exception as e:
+        print(f"An error occurred while posting data: {e}")
 
 @app.get("/externalApi/getWeather/{location}", response_model=WeatherResponse)
 async def get_weather(location: str):
-
-    # for kafka produce
-    payload = {
-        "timestamp": "value1",
-        "temperature": 40,
-        "location":"hohoho"
-    }
-    send_data_kafka(payload)
-
-
     url = f'http://api.weatherapi.com/v1/current.json'
     API_KEY= os.getenv('WEATHER_API_KEY')
     params = {
@@ -55,19 +45,22 @@ async def get_weather(location: str):
     }
     response = requests.get(f'{url}', auth=None, params=params)
     response_dict = json.loads(response.text)
-    # response_json = response.json()
     _location = location
+
+    payload = {
+        "service": "externalService"
+    }
+
     try:
         _temperatureCelcius = response_dict['current']['temp_c']
-        # _temperatureCelcius = response_json.current.temp_c
         _time = response_dict['location']['localtime']
-        # _time = response_json.location.localtime
-
         response_data = {
             "location": _location,
             "temperature": int(_temperatureCelcius), # to ensure float/int or any values are aligned with WeatherResponse schema model specific for temperature
             "timestamp": _time,
         }
+        payload = {**payload, **response_data}
+        send_data_kafka(payload)
         return response_data
     except Exception as e:
         raise Exception(f"An unexpected error occurred: {str(e)}")

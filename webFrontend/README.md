@@ -180,5 +180,11 @@ https://github.com/Kong/kong/issues/13512
 
 
 
+app creation using react native
+npm install -g react-native-cli
+npx react-native init WeatherApp
+npx react-native run-android
+
+
 
 

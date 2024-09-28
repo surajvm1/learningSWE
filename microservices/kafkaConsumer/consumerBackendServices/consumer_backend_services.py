@@ -3,47 +3,8 @@ from confluent_kafka import Consumer, KafkaError, KafkaException
 import json
 import time
 
-## Native implement
-# def consume_topic_a():
-#     consumer = KafkaConsumer(
-#         'topic_a',
-#         bootstrap_servers='kafka:9092',
-##        bootstrap_servers='localhost:29092',
-#         value_deserializer=lambda x: json.loads(x.decode('utf-8')),
-#         auto_offset_reset='earliest',
-#         enable_auto_commit=True,
-#         request_timeout_ms=120000 # 120s timeout
-#     )
-#
-#     for message in consumer:
-#         with open('topic_a_data.json', 'a') as f:
-#             json.dump(message.value, f)
-#             f.write('\n')  # Write each message on a new line
-#
-# def consume_topic_b():
-#     consumer = KafkaConsumer(
-#         'dbserver1.public.weather',  # Topic created by Debezium
-#         bootstrap_servers='kafka:9092',
-##        bootstrap_servers='localhost:29092',
-#         value_deserializer=lambda x: json.loads(x.decode('utf-8')),
-#         auto_offset_reset='earliest',
-#         enable_auto_commit=True,
-#         request_timeout_ms=120000 # 120s timeout
-#     )
-#
-#     for message in consumer:
-#         with open('topic_b_data.json', 'a') as f:
-#             json.dump(message.value, f)
-#             f.write('\n')  # Write each message on a new line
-#
-# if __name__ == "__main__":
-#     consume_topic_a()
-#     consume_topic_b()
-
 ## Confluent Kafka implement
-
-
-## for only 1 topic, define other topic b...
+## Consuming from only 1 topic, we could have other topics as well.
 def consume_topic_a():
     print('Consumer started to consume from topics')
     consumer = Consumer({
@@ -52,7 +13,6 @@ def consume_topic_a():
         'group.id': 'backend_group',
         'auto.offset.reset': 'earliest'
     })
-
     topic = 'topic_a'
     while True:
         try:
@@ -80,11 +40,45 @@ def consume_topic_a():
                     with open('/data/topic_a_data.json', 'a') as f:  # Save to /data inside the container
                         json.dump(json_value, f)
                         f.write('\n')  # Write each message on a new line
-
         except KafkaException as e:
             print(f"Kafka exception occurred: {e}")
-        # Wait for a few seconds before trying to subscribe again
-        time.sleep(5)
+        time.sleep(5) # Wait for a few seconds before trying to subscribe again
 
 if __name__ == "__main__":
     consume_topic_a()
+
+"""
+## Native implementation of Consumer for reference. Above code implementation is using Confluent Kafka.  
+def consume_topic_a():
+    consumer = KafkaConsumer(
+        'topic_a',
+        bootstrap_servers='kafka:9092',
+#        bootstrap_servers='localhost:29092',
+        value_deserializer=lambda x: json.loads(x.decode('utf-8')),
+        auto_offset_reset='earliest',
+        enable_auto_commit=True,
+        request_timeout_ms=120000 # 120s timeout
+    )
+    for message in consumer:
+        with open('topic_a_data.json', 'a') as f:
+            json.dump(message.value, f)
+            f.write('\n')  # Write each message on a new line
+def consume_topic_b():
+    consumer = KafkaConsumer(
+        'dbserver1.public.weather',  # Topic created by Debezium
+        bootstrap_servers='kafka:9092',
+#        bootstrap_servers='localhost:29092',
+        value_deserializer=lambda x: json.loads(x.decode('utf-8')),
+        auto_offset_reset='earliest',
+        enable_auto_commit=True,
+        request_timeout_ms=120000 # 120s timeout
+    )
+    for message in consumer:
+        with open('topic_b_data.json', 'a') as f:
+            json.dump(message.value, f)
+            f.write('\n')  # Write each message on a new line
+
+if __name__ == "__main__":
+    consume_topic_a()
+    consume_topic_b()
+"""
