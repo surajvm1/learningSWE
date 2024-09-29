@@ -38,6 +38,7 @@
   - Others:
     - Java (v11)
 
+- Note: I have changed the API key used in externalService, so one must generate their own. 
 - To start running the project on your local; Follow: 
 
 ```
