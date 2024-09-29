@@ -13,6 +13,7 @@
   - Increase the complexity of project by adding more features eg: Authentication, etc. Can also write services in Go/Ruby, etc., languages based on learning. 
   - Check issues faced integrating Kong API gateway. Converge load balancer and API gateway to a single service, to avoid many hops. 
   - Load test the service using ab, k6, etc. 
+  - Add more features to Debezium CDC to better capture tables states. 
   - Deploy service to AWS/GCP cloud for more learning. 
   - Fix/Integrate mobile app, flink. 
   - Implement Kafka schema registry. 
@@ -29,7 +30,7 @@
   - NodeJS (eg: `v20.15.1`)
   - ReactJS 
   - Docker/Podman desktop
-  - Spark 
+  - Spark (v3.4.1)
   - Compose (Docker or Podman compose)
   - IDEs for development
   - Git 
@@ -91,4 +92,11 @@ Emitting an event, means, simply go to the web app and try GET'ing the weather o
 Navigate to: 
   cd dataStreaming/pyspark
   spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1 sparkStream.py
+  
+Note: 
+  Debezium will capture changes in postgres table only during POST calls, when you insert any data in db, during other calls, it may not capture the state of the db.
+  
 ```
+
+----------------------------------------
+
