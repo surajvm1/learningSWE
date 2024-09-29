@@ -260,10 +260,18 @@ load balancing to do of the APIs
 
 
 
+podman-compose up --build
+
+podman build --no-cache -t img .
 
 
+To start project: 
+Login to weather app website and replce env service key: 
 
+starting react web app
 
+starting microservices
+ 
 
 
 

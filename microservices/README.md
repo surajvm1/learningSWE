@@ -16,7 +16,7 @@
 
 A Dockerfile is a text document that contains all the commands a user could call on the command line to assemble an image. Below are the main components of a Dockerfile and explanations of when and how to use them:
 
-## Dockerfile Components
+#### Dockerfile Components
 
 1. **FROM**
    - **Syntax:** `FROM <image>`
@@ -94,7 +94,7 @@ A Dockerfile is a text document that contains all the commands a user could call
     - **When to Use:** When you want to define actions that should be taken when the image is used as a base for another build.
     - **Example:** `ONBUILD COPY . /app/src`
 
-## Dockerfile Example
+#### Dockerfile Example
 
 Here's an example Dockerfile that demonstrates the use of several components:
 
@@ -125,345 +125,76 @@ ENV NAME World
 CMD ["python", "app.py"]
 ```
 
+* Giving all necessary permissions to our new user which we use to create tables/db. 
+  - postgresdockerlocal-# `grant all privileges on database fapidb to postgresdluser;`
+  - postgresdockerlocal=# `GRANT CONNECT ON DATABASE fapidb TO postgresdluser;`
+  - postgresdockerlocal=# `GRANT pg_read_all_data TO postgresdluser;`
+  - postgresdockerlocal=# `GRANT pg_write_all_data TO postgresdluser;`
+  - postgresdockerlocal=# `GRANT ALL PRIVILEGES ON DATABASE "fapidb" to postgresdluser;`
+  - postgresdockerlocal=# `GRANT USAGE ON SCHEMA public TO postgresdluser;`
+  - postgresdockerlocal=# `GRANT ALL ON SCHEMA public TO postgresdluser;`
+  - postgresdockerlocal=# `GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgresdluser;`
 
-## Giving all necessary permissions to our new user which we use to create tables/db. 
-postgresdockerlocal-# grant all privileges on database fapidb to postgresdluser;
-postgresdockerlocal=# GRANT CONNECT ON DATABASE fapidb TO postgresdluser;
-postgresdockerlocal=# GRANT pg_read_all_data TO postgresdluser;
-postgresdockerlocal=# GRANT pg_write_all_data TO postgresdluser;
-postgresdockerlocal=# GRANT ALL PRIVILEGES ON DATABASE "fapidb" to postgresdluser;
-postgresdockerlocal=# GRANT USAGE ON SCHEMA public TO postgresdluser;
-postgresdockerlocal=# GRANT ALL ON SCHEMA public TO postgresdluser;
-postgresdockerlocal=# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgresdluser;
+- Kill the process pid: `kill -9 <pid_of_process>`. 
 
+---------
 
-Kill the process pid: kill -9 <pid>. (Command: kill <pid> sends signal (SIGTERM) and tells pid to terminate, but said program can execute some code first or even ignore the signal. kill -9 <pid>, on the other hand, forces the program to immediately terminate and cannot be ignored)
+Others:
 
-
-
-
-
-
-
-
-
-
-
-
-
-if you're running your services (Postgres, Redis, MongoDB) in Docker containers and your FastAPI service also in a container, then you should use the names of the services defined in your docker-compose.yml file as the hosts for those services.
-
-However, if your databases (Postgres, Redis, MongoDB) are running on your host machine (outside of Docker) and your FastAPI service is running inside a Docker container, you should use your laptop's IP address or the host machine's address instead of localhost.
-
-Why Not localhost?
-Inside Docker Container: When your FastAPI app is running inside a Docker container, localhost refers to the container itself, not your host machine. Therefore, it won't be able to connect to services running on your host machine if you use localhost.
-Service Names in Docker Compose: If all services are in Docker and defined in the same docker-compose.yml file, Docker allows services to communicate with each other using the service names as the hostname.
-
-
-data = response.decode('utf-8') # decoding byter to string, as Redis returns: b'hello world', when I print
-
-
-
-@app.post("/users/", response_model=UserSchema)
-# FastAPI’s Response Models enable you to articulate the data structure that your API will provide in response to requests. When a client makes an HTTP request to the server, the server is required to send relevant data back to the client. The Response Models play a vital role in defining the details of this data model, ensuring consistency in API responses.
-def create_user_postApi(user: UserCreateSchema, db: Session = Depends(get_db)):
-    print('Postgres POST API call done')
-    return create_user(db=db, user=user)
-    # Notice that we are returning the user whose data we POSTed as response object - ideally we could simply return a statement/string that POST call successful or so, but anyways we are returning an object. Note that this object/result returned is being validated via pydantic response_model=UserSchema, so if our response is not adhering we will get error. So like end-to-end validation is happening. Later in below example endpoints as well we are validating the API response from pydantic response models.
-
-
-Base.metadata.create_all(bind=engine) # The models.Base.metadata.create_all(bind=engine) line is a convenient and powerful way to ensure your database schema is created and kept in sync with your SQLAlchemy models. It abstracts away the need to write raw SQL for table creation, making your code cleaner and more maintainable.
-
-class UserSchema(UserBaseSchema):
-    # UserSchema is used for output when reading an entity from the database. It includes all the fields, including id and created_at.
-    # Recall that we have similar User class defined in postgresModels.py file as well
-    id: int
-    created_at: datetime
-    class Config:
-        # The Config class with orm_mode = True in Pydantic schemas is added to enable compatibility with SQLAlchemy models. When working with SQLAlchemy ORM models, the data returned from the database queries are instances of SQLAlchemy models. By default, Pydantic expects plain dictionaries for its models. Setting orm_mode = True allows Pydantic models to be populated from ORM objects, enabling seamless data interchange between SQLAlchemy models and Pydantic schemas. It ensures that Pydantic can serialize SQLAlchemy models directly, which is particularly useful for API responses where SQLAlchemy objects need to be converted to JSON. This tells Pydantic to treat ORM models as dictionaries for serialization and deserialization. When a SQLAlchemy model instance is passed to a Pydantic schema, it knows how to extract the data.
-        # Defining a Config class inside a Pydantic model class is valid and a common practice in Pydantic.
-        # A class defined inside another class is known as an inner class in Python. If the inner class is instantiated, the object of the inner class can also be used by the parent class. The object of the inner class becomes one of the attributes of the outer class. The inner class automatically inherits the attributes of the outer class without formally establishing inheritance. The inner class has a local scope. It acts as one of the attributes of the outer class.
-        # Interesting article: https://www.reddit.com/r/FastAPI/comments/lmywl6/orm_or_pydantic_model/
-        # Recall we use Base ORM from sqlalchemy, to have better type validation we are using pydantic ORM here as well - with orm_mode True pydantic knows if any translation needs to be done for validation
-        orm_mode = True
-
-
- # The data for the new user, validated by Pydantic UserCreateSchema, later converted to dict below
-    db_user = UserModel(**user.dict(), created_at=datetime.utcnow())
-    # We are adding created_at=datetime.utcnow(), and UserCreateSchema looks like: name: str, type: str, phone: int, address: str. Note that we are not explicitly adding id, as the user_id is automatically generated by the database because it is defined as a primary key in the model.
+- Setup working condition: Works.
+- Note some of the issues faced setting up project:  
+  - Timestamp parsing issues, so had to add this line: `json_encoders = {datetime: lambda v: v.isoformat(timespec='seconds') if isinstance(v, datetime) else v ... etc}`
+  - CORS issue faced in Nginx when responding back from backend to frontend. 
+  - Schema validation errors (Pydantic) in the API response from the weather app. 
+  - Config.yml format working for KrakenD setup, and not config.json - have to debug further. 
+  - During testing, changes were not reflecting when building/starting the microservices - so had to cleanup the cache, volumes, etc in Podman/Docker and repull it. 
+  - Had issues running up debezium/kafka services, because of platform architecture issues. Later changed the base image. 
+    - If you need to specify the architecture (like linux/amd64), you can build the images using the --platform flag. However, Podman does not directly support the --platform flag with podman-compose. Instead, you can build your images separately using podman build with the --platform option. Docker does, but still, have to see if it would've solved the issue - rather I used another base image.
+    - Also, tried instead of running images directly in compose file, created a dockerfile with base OS ubuntu and running the images on top of it, still it gave some other kind of issues. 
+- Useful link: [Json loads method link](https://stackoverflow.com/questions/58048879/what-is-the-difference-between-json-method-and-json-loads)
+- More details about microservices in few projects I worked on earlier: 
+  - https://github.com/surajvm1/LearningMicroservices
+  - https://github.com/surajvm1/mDumpSWE
+- Some other errors observed: 
+    ```
+    Error 1: 
+    zookeeper container error: rosetta error: unhandled auxillary vector type 28
+    debezium error: rosetta error: unhandled auxillary vector type 28
+    kafka error: 
+    java.lang.IllegalArgumentException: Unable to canonicalize address zookeeper/<unresolved>:2181 because it's not resolvable
+            at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:78)
+            at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:41)
+            at org.apache.zookeeper.ClientCnxn$SendThread.startConnect(ClientCnxn.java:1157)
+            at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1207)
+    ERROR Timed out waiting for connection to Zookeeper server [zookeeper:2181]. (io.confluent.admin.utils.ClusterStatus)
+    ERROR Unable to resolve address: zookeeper/<unresolved>:2181 (org.apache.zookeeper.client.StaticHostProvider)
+    java.net.UnknownHostException: zookeeper
+            at java.base/java.net.InetAddress$CachedAddresses.get(InetAddress.java:801)
+            at java.base/java.net.InetAddress.getAllByName0(InetAddress.java:1533)
+            at java.base/java.net.InetAddress.getAllByName(InetAddress.java:1385)
+            at java.base/java.net.InetAddress.getAllByName(InetAddress.java:1306)
+            at org.apache.zookeeper.client.StaticHostProvider$1.getAllByName(StaticHostProvider.java:88)
+            at org.apache.zookeeper.client.StaticHostProvider.resolve(StaticHostProvider.java:141)
+            at org.apache.zookeeper.client.StaticHostProvider.next(StaticHostProvider.java:368)
+            at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1204)
+    INFO Session: 0x0 closed (org.apache.zookeeper.ZooKeeper)
+    INFO EventThread shut down for session: 0x0 (org.apache.zookeeper.ClientCnxn)
+    Using log4j config /etc/kafka/log4j.properties
     
-    redis_id = redis_client.incr("redis_id_value")  # Automatically increment redis_id. The redis.incr("redis_id") command in Redis is used to increment the value of the key "redis_id" by one and return the new value. You can use a different tag or key for your ID generation. Redis will not forget the value as long as the data is persisted correctly and the Redis server is not cleared or restarted without persistence enabled.
-
-    UserSchema(**user_data) will deserialize the JSON string into a dictionary, then unpack it into a UserSchema object. 
-    We are doing this because later the FastAPI code validates the same in pydantic for the endpoint.
-    Recall we have defined response_model=UserSchema, which means response should adhere to the UserSchema, same we are doing here as well
-    It can be done in other way like: 
-    deserialized_data = json.loads(user_data) ## loads() method can be used to parse a valid JSON string and convert it into a Python Dictionary.
-    deserialized_obj = UserSchema(id=deserialized_data["id"], name=deserialized_data["name"], type=deserialized_data["type"], phone=deserialized_data["phone"], address=deserialized_data["address"], created_at=deserialized_data["created_at"])            
-    Later, return deserialized_obj... 
-
-# We know Base is the ORM we are using
-    """
-    From Readme we know how our sql table looks like:
-       Column   |            Type
-    ------------+-----------------------------+
-     id         | integer                     |
-     name       | text                        |
-     type       | text                        |
-     phone      | integer                     |
-     address    | character varying(300)      |
-     created_at | timestamp without time zone |
-    """
-    __tablename__ = 'tpsqltable' # syntax when using Base class
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__))) # Note: Reason why done ~ https://stackoverflow.com/questions/4383571/importing-files-from-different-folder
-
-if os.getenv("APP_MODE_DOCKER", "None") == 'docker_mode': # this condition means if we get value from APP_MODE_DOCKER we use it, else default value is None
-    POSTGRES_HOST = "192.168.29.72"
-    POSTGRES_PORT = 7002
-    POSTGRES_USER = "postgresdluser"
-    POSTGRES_PASSWORD = "1234"
-    POSTGRES_DB = "fapidb"
-
-
-
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
-# Similar to rd above; (check below comment for some info)
-"""
-decode_responses=True; This argument ensures that all responses from the Redis server are automatically decoded 
-from bytes to strings. This is particularly useful because Redis, by default, stores and returns data as bytes, 
-which can be cumbersome to handle in a Python application that predominantly uses strings.
-Eg: 
-redis_client.set('key', 'value')
-value = redis_client.get('key') # Get the value (without decode_responses=True)
-print(value)  # Output: b'value'
-decoded_value = value.decode('utf-8') # Manually decode the value
-print(decoded_value) # Output: 'value'
-
-Else, use decode_responses=True argument. 
-
-Note: We could also use something like this in our app.py file for businessMicroservice;
-In FastAPI, the @app.on_event("startup") decorator is used to define functions that should run when the application starts up. These functions are typically used to perform initialization tasks, such as setting up database connections, loading configuration settings, or preparing any resources that the application needs to function.
-@app.on_event("startup")
-def startup_event():
-    global redis_client
-    ## redis_client = Redis(host='redislocalcontainer', port=6379, decode_responses=True)
-    redis_client = Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
-"""
-
-https://www.youtube.com/watch?v=ofme2o29ngU
-
-kong error debug?
-
-json_encoders = {
-    datetime: lambda v: v.isoformat(timespec='seconds') if isinstance(v, datetime) else v,
-}
-error debug, why timestamp was not parsing fine?
-
-then cors issue faced in nginx
-
-fastapi weatherresponse schema validation error so that also gave api response issues - so did type casting
-
-why config.json not working in krakend, but only config.yml format?
-
-https://stackoverflow.com/questions/58048879/what-is-the-difference-between-json-method-and-json-loads
-
-The difference between response.json() and json.loads(response.text) primarily revolves around how they handle the decoding of JSON data from a response object in Python's requests library. Here’s a detailed breakdown of their differences:
-Overview of response.json() vs json.loads(response.text)
-Method Context:
-response.json(): This is a method provided by the Response object in the requests library. It is specifically designed to parse the JSON response body directly from the HTTP response.
-json.loads(response.text): This is a function from the built-in json module in Python that converts a JSON-formatted string into a Python dictionary. It requires the string representation of the JSON data.
-Input Type:
-response.json(): Takes no arguments; it operates directly on the Response object.
-json.loads(response.text): Takes a string (the text content of the response) as an argument.
-Encoding Handling:
-response.json(): Automatically handles the response encoding. It attempts to guess the correct encoding of the response content based on the response headers and applies it before parsing the JSON. This makes it more robust against encoding issues.
-json.loads(response.text): Assumes that the string is encoded in UTF-8 by default. If the actual encoding is different, this could lead to errors or incorrect parsing.
-Error Handling:
-response.json(): Raises a ValueError if the response body is not valid JSON or if the response status code indicates an error (e.g., 4xx or 5xx). It also raises an HTTPError if the response indicates a failure.
-json.loads(response.text): Raises a ValueError if the provided string is not valid JSON but does not handle HTTP errors. You must check the response status code separately.
-Performance:
-response.json(): Slightly more efficient as it avoids the overhead of converting the response to text before parsing.
-json.loads(response.text): Requires an additional step of converting the response to text, which may introduce unnecessary overhead.
-
-once, during testing, my changes were not getting properly build, so had to clean up podman images, volumes, etc etc. 
-
-
-
-
-Ways to Enable Communication Between Services in Different Networks
-Here are some approaches to enable communication between services running in different Docker networks:
-
-1. Connect Containers to Multiple Networks
-You can connect a container to multiple networks, allowing it to communicate with services in both networks. For example, if you want service_a to communicate with service_b, you can connect service_a to both network_a and network_b.
-Here’s how you can modify your Docker Compose file:
-version: '3'
-services:
-  service_a:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    container_name: service_a
-    networks:
-      - network_a
-      - network_b  # Connect to both networks
-  service_b:
-    build:
-      context: .
-      dockerfile: Dockerfile  
-    container_name: service_b
-    networks:
-      - network_b
-networks:
-  network_a:
-    name: network_a
-  network_b:
-    name: network_b
-
-In this configuration, service_a can communicate with both service_b and any other service on network_a.
-
-2. Use a Shared Network
-If both services need to communicate frequently, consider using a shared network for both services. This is the simplest approach and avoids the complexity of multiple network connections.
-version: '3'
-services:
-  service_a:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    container_name: service_a
-    networks:
-      - shared_network
-  service_b:
-    build:
-      context: .
-      dockerfile: Dockerfile  
-    container_name: service_b
-    networks:
-      - shared_network
-networks:
-  shared_network:
-    name: shared_network
-
-In this setup, both service_a and service_b are on the same shared_network, allowing them to communicate easily.
-
-3. Using Docker Compose's external Networks
-If you have existing networks that you want to use, you can specify them as external networks in your Docker Compose file:
-version: '3'
-services:
-  service_a:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    container_name: service_a
-    networks:
-      - external_network_a
-  service_b:
-    build:
-      context: .
-      dockerfile: Dockerfile  
-    container_name: service_b
-    networks:
-      - external_network_b
-networks:
-  external_network_a:
-    external: true
-  external_network_b:
-    external: true
-
-Conclusion
-If you want services in different Docker networks to communicate, you will need to either connect them to multiple networks, use a shared network, or configure your network settings accordingly.
-By default, Docker isolates containers in different networks, so you must explicitly allow communication through one of the methods mentioned above. This isolation is a key feature of Docker networking, providing security and separation between different applications or services.
-
-
-
-In Kafka, the relationship (multiplicity) between partitions and consumers is defined by how partitions are assigned to consumers within a consumer group. The multiplicity is generally described as:
-
-1. One Partition -> One Consumer:
-Each partition in a Kafka topic can be consumed by only one consumer within the same consumer group at a time. This means that a partition is assigned exclusively to one consumer in the group.
-2. One Consumer -> Multiple Partitions:
-A single consumer can be assigned multiple partitions. If there are more partitions than consumers in a consumer group, some consumers will handle more than one partition.
-Scenarios:
-Equal Number of Partitions and Consumers:
-
-If the number of partitions equals the number of consumers in the consumer group, each consumer will be assigned exactly one partition.
-More Partitions than Consumers:
-
-If there are more partitions than consumers, some consumers will be assigned multiple partitions.
-More Consumers than Partitions:
-
-If there are more consumers than partitions, some consumers will not be assigned any partitions. Only the number of consumers equal to the number of partitions will actively consume messages.
-Example:
-Topic with 4 Partitions:
-Scenario 1: 4 consumers (C1, C2, C3, C4) in the same consumer group. Each consumer will consume from one partition.
-Scenario 2: 2 consumers (C1, C2) in the same consumer group. Each consumer will consume from 2 partitions.
-Scenario 3: 6 consumers (C1 to C6) in the same consumer group. Only 4 consumers will consume, and 2 will remain idle.
-Summary:
-One Partition can be consumed by only one consumer within the same consumer group.
-One Consumer can consume data from multiple partitions if the number of partitions exceeds the number of consumers in the group.
-Understanding this multiplicity helps design Kafka consumer groups for efficient data processing, considering the number of partitions and consumers needed.
-
-
-podman-compose up --build
-
-podman build --no-cache -t img .
-
-If you need to specify the architecture (like linux/amd64), you can build the images using the --platform flag. However, Podman does not directly support the --platform flag with podman-compose. Instead, you can build your images separately using podman build with the --platform option.
-
-
-
-zookeeper container error: rosetta error: unhandled auxillary vector type 28
-debezium error: rosetta error: unhandled auxillary vector type 28
-kafka error: 
-java.lang.IllegalArgumentException: Unable to canonicalize address zookeeper/<unresolved>:2181 because it's not resolvable
-        at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:78)
-        at org.apache.zookeeper.SaslServerPrincipal.getServerPrincipal(SaslServerPrincipal.java:41)
-        at org.apache.zookeeper.ClientCnxn$SendThread.startConnect(ClientCnxn.java:1157)
-        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1207)
-ERROR Timed out waiting for connection to Zookeeper server [zookeeper:2181]. (io.confluent.admin.utils.ClusterStatus)
-ERROR Unable to resolve address: zookeeper/<unresolved>:2181 (org.apache.zookeeper.client.StaticHostProvider)
-java.net.UnknownHostException: zookeeper
-        at java.base/java.net.InetAddress$CachedAddresses.get(InetAddress.java:801)
-        at java.base/java.net.InetAddress.getAllByName0(InetAddress.java:1533)
-        at java.base/java.net.InetAddress.getAllByName(InetAddress.java:1385)
-        at java.base/java.net.InetAddress.getAllByName(InetAddress.java:1306)
-        at org.apache.zookeeper.client.StaticHostProvider$1.getAllByName(StaticHostProvider.java:88)
-        at org.apache.zookeeper.client.StaticHostProvider.resolve(StaticHostProvider.java:141)
-        at org.apache.zookeeper.client.StaticHostProvider.next(StaticHostProvider.java:368)
-        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1204)
-INFO Session: 0x0 closed (org.apache.zookeeper.ZooKeeper)
-INFO EventThread shut down for session: 0x0 (org.apache.zookeeper.ClientCnxn)
-Using log4j config /etc/kafka/log4j.properties
-
-kafka consumer error: Traceback (most recent call last):
-  File "/kafka_consumer/consumer.py", line 33, in <module>
-    consume_topic_a()
-  File "/kafka_consumer/consumer.py", line 5, in consume_topic_a
-    consumer = KafkaConsumer(
-  File "/usr/local/lib/python3.9/site-packages/kafka/consumer/group.py", line 356, in __init__
-    self._client = KafkaClient(metrics=self._metrics, **self.config)
-  File "/usr/local/lib/python3.9/site-packages/kafka/client_async.py", line 244, in __init__
-    self.config['api_version'] = self.check_version(timeout=check_timeout)
-  File "/usr/local/lib/python3.9/site-packages/kafka/client_async.py", line 900, in check_version
-    raise Errors.NoBrokersAvailable()
-kafka.errors.NoBrokersAvailable: NoBrokersAvailable
-
-
-since it expects a different base os, 
-instead of adding docker image in docker compose with other services 
-i segregated it to a different folder with base image ubuntu
-
-
-seems kafka and debezium container can only run in linux in case of podman, for docker desktop we can pass --platform argument
-so in mac i am getting errors when running container, so other way i am trying is creating dockerfile with base image as ubunutu/linux and on top of that then installing kafka/debezium rather than earlier approach to install the images directly? 
-
-
-
-
-
-
-
-
-
-
-
+    Error 2: 
+    kafka consumer error: Traceback (most recent call last):
+      File "/kafka_consumer/consumer.py", line 33, in <module>
+        consume_topic_a()
+      File "/kafka_consumer/consumer.py", line 5, in consume_topic_a
+        consumer = KafkaConsumer(
+      File "/usr/local/lib/python3.9/site-packages/kafka/consumer/group.py", line 356, in __init__
+        self._client = KafkaClient(metrics=self._metrics, **self.config)
+      File "/usr/local/lib/python3.9/site-packages/kafka/client_async.py", line 244, in __init__
+        self.config['api_version'] = self.check_version(timeout=check_timeout)
+      File "/usr/local/lib/python3.9/site-packages/kafka/client_async.py", line 900, in check_version
+        raise Errors.NoBrokersAvailable()
+    kafka.errors.NoBrokersAvailable: NoBrokersAvailable
+    ```
+  
+---------
 

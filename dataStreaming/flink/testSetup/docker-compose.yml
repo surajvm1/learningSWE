@@ -1,0 +1,79 @@
+version: '3'
+networks:
+  service_network:
+    name: docker_network
+
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.4.6
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    ports:
+      - "9092:9092"
+      - "29092:29092"  # Expose for local access
+    networks:
+      - service_network
+
+  zookeeper:
+      image: confluentinc/cp-zookeeper:7.4.6
+      container_name: zookeeper
+      environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+        ZOOKEEPER_TICK_TIME: 2000
+      ports:
+        - "2181:2181"
+      networks:
+        - service_network
+
+  kafka_producer:
+    build:
+      context: localDevTesting/kafkaProducer
+      dockerfile: localDevTesting/kafkaProducer/Dockerfile
+    container_name: kafka_producer
+    depends_on:
+      - kafka
+    networks:
+      - service_network
+
+## Running flink locally by clicking on run button on IDE directly rather than via docker as was running into issues on podman + mac combination
+#  flink:
+#    build:
+#      context: pipeline
+#      dockerfile: Dockerfile
+#    container_name: flink
+#    ports:
+#      - "8081:8081"  # Flink Web UI
+#      - "6123:6123"  # Flink JobManager
+#      - "8082:8082"  # Flink TaskManager
+#    depends_on:
+#      - kafka
+#      - postgres_service
+#    networks:
+#      - service_network
+
+  postgres_service:
+    image: postgres:14
+    container_name: postgres_service
+    environment:
+      POSTGRES_USER: admin_suraj
+      POSTGRES_PASSWORD: pws_suraj
+      POSTGRES_DB: pi3db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - service_network
+
+volumes:
+  pgdata:

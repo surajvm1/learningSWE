@@ -11,7 +11,8 @@ spark = SparkSession.builder \
 json_schema = StructType() \
     .add("location", StringType()) \
     .add("temperature", IntegerType()) \
-    .add("timestamp", StringType())
+    .add("timestamp", StringType()) \
+    .add("service", StringType())
 
 # Read data from Kafka
 df = spark.readStream \

@@ -34,56 +34,11 @@ services:
     networks:
       - service_network
 
-#  kong_gateway_1:
-#    image: kong:latest
-#    container_name: kong_gateway_1
-#    environment:
-#      KONG_DATABASE: "off"
-#      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
-#      KONG_PROXY_ACCESS_LOG: /dev/stdout
-#      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-#      KONG_PROXY_ERROR_LOG: /dev/stderr
-#      KONG_ADMIN_ERROR_LOG: /dev/stderr
-#      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
-#    volumes:
-#      - .././apiGateway/kong/kong.yml:/kong/declarative/kong.yml
-#    ports:
-#      - "8000:8000"
-#      - "8001:8001"
-#    networks:
-#      - service_network
-#    depends_on: ## seems to be causing cyclic dependency causing issues
-#      - internal_weather_service_b
-#      - external_service_a
-
-#  kong_gateway_2:
-#    image: kong:latest
-#    container_name: kong_gateway_2
-#    environment:
-#      KONG_DATABASE: "off"
-#      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
-#      KONG_PROXY_ACCESS_LOG: /dev/stdout
-#      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-#      KONG_PROXY_ERROR_LOG: /dev/stderr
-#      KONG_ADMIN_ERROR_LOG: /dev/stderr
-#      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
-#    volumes:
-#      - .././apiGateway/kong/kong.yml:/kong/declarative/kong.yml
-#    ports:
-#      - "8002:8000"
-#      - "8003:8001"
-#    networks:
-#      - service_network
-#    depends_on:
-#      - internal_weather_service_b
-#      - external_service_a
-
   krakend_gateway_1:
     image: devopsfaith/krakend:2.7.0
     container_name: krakend_1
     volumes:
       - .././apiGateway/krakend/config.yml:/etc/krakend/config.yml
-#      - .././apiGateway/krakend/config.json:/etc/krakend/config.json
     networks:
       - service_network
     ports:
@@ -95,7 +50,6 @@ services:
     container_name: krakend_2
     volumes:
       - .././apiGateway/krakend/config.yml:/etc/krakend/config.yml
-#      - .././apiGateway/krakend/config.json:/etc/krakend/config.json
     networks:
       - service_network
     ports:
@@ -114,12 +68,9 @@ services:
       - "8765:8765"
     networks:
       - service_network
-    # commening depends on as sometimes nginx container also dies down on this, have to add say some health checks or timeout so that it dont die down
     depends_on:
       - krakend_gateway_1
       - krakend_gateway_2
-#      - kong_gateway_1
-#      - kong_gateway_2
 
   postgres_service:
     image: postgres:13
@@ -128,9 +79,6 @@ services:
       POSTGRES_USER: postgres_user_suraj
       POSTGRES_PASSWORD: postgres_pws_1234
       POSTGRES_DB: weatherdb
-#      POSTGRES_INITDB_ARGS: "--data-checksums"
-#      POSTGRES_WAL_LEVEL: logical
-#      PG_JOURNAL_WAL_LEVEL: logical
     ports:
       - "5432:5432"
     volumes:
@@ -157,32 +105,8 @@ services:
     networks:
       - service_network
 
-#  debezium:
-#    image: quay.io/debezium/connect:latest
-##    Using quay.io and not dockerhub
-#    container_name: debezium
-##    depends_on:
-##      kafka:
-##        condition: service_healthy
-#    environment:
-#      BOOTSTRAP_SERVERS: kafka:9092
-#      GROUP_ID: 1
-#      CONFIG_STORAGE_TOPIC: debezium_config
-#      OFFSET_STORAGE_TOPIC: debezium_offset
-#      STATUS_STORAGE_TOPIC: debezium_status
-#    ports:
-#      - "8083:8083"
-#    networks:
-#      - service_network
-##    volumes:
-##      - ./debezium/setup.sh:/setup.sh
-##    command: ["bash", "/setup.sh"]
-
   debezium:
     image: quay.io/debezium/connect:2.7
-#    build:
-#      context: ./debezium
-#      dockerfile: Dockerfile
     container_name: debezium
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
@@ -202,23 +126,6 @@ services:
       - ./debezium/connectors/postgres_connector.json:/kafka/config/debezium_connector_config.json
       - ./debezium/setup.sh:/kafka/register_connector.sh
     entrypoint: "sh /kafka/register_connector.sh"
-#    command: [ "sh", "-c", "start", "&", "/kafka/register_connector.sh"]
-    #    command: ["bash", "-c", "sleep 60 && curl -X POST -H 'Content-Type: application/json' --data @/kafka/config/debezium_connector_config.json http://debezium:8083/connectors"]
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://localhost:8083/" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-
-      #    command: "sh -c start & /kafka/register_connector.sh"
-      #entrypoint: "sh /kafka/register_connector.sh"
-    #    command: bash -c "chmod+x register_connector.sh && register_connector.sh"
-  #    command: [sh, -c, "chmod+x register_connector.sh && register_connector.sh"]
-  #    command: ["sh", "/kafka/register_connector.sh"]
-  #    command: ["sh", "register_connector.sh"]
-  #    command: ["bash", "-c", "sleep 60 && curl -X POST -H 'Content-Type: application/json' --data @/kafka/config/debezium_connector_config.json http://debezium:8083/connectors"]
-
-
 
   kafka:
     image: confluentinc/cp-kafka:7.4.6
@@ -229,11 +136,8 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-#      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
@@ -295,48 +199,25 @@ services:
     depends_on:
       - kafka  # Ensure Kafka is running before starting the consumer
 
-
-  prometheus:
-    image: prom/prometheus:v2.54.1
-    container_name: prometheus
-    volumes:
-      - ./service_monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"  # Change the host port to 9091
-    networks:
-      - service_network
-
-  grafana:
-    image: grafana/grafana:11.2.0
-    container_name: grafana
-    ports:
-      - "3000:3000"  # Change the host port to 3001
-    networks:
-      - service_network
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin  # Set admin password for Grafana
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
-    container_name: cadvisor
-    ports:
-      - "8085:8080"  # Expose cAdvisor on port 8085
-    volumes:
-      - /var/run:/var/run:ro  # Required for cAdvisor to access Docker metrics
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /:/rootfs:ro
-      - /dev/disk/:/dev/disk:ro
-    networks:
-      - service_network
-
-  node_exporter:
-    image: prom/node-exporter:v1.8.2
-    container_name: node_exporter
-    ports:
-      - "9100:9100"
-    networks:
-      - service_network
+#  prometheus:
+#    image: prom/prometheus:v2.54.1
+#    container_name: prometheus
+#    volumes:
+#      - ./service_monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+#    ports:
+#      - "9090:9090"  # Change the host port to 9091
+#    networks:
+#      - service_network
+#
+#  grafana:
+#    image: grafana/grafana:11.2.0
+#    container_name: grafana
+#    ports:
+#      - "3000:3000"  # Change the host port to 3001
+#    networks:
+#      - service_network
+#    environment:
+#      - GF_SECURITY_ADMIN_PASSWORD=admin  # Set admin password for Grafana
 
 volumes:
   pgdata:
