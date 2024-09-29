@@ -5,7 +5,7 @@ import time
 
 ## Confluent Kafka implement
 ## Consuming from only 1 topic, we could have other topics as well.
-def consume_topic_a():
+def consume_data_backend_service():
     print('Consumer started to consume from topics')
     consumer = Consumer({
         # 'bootstrap.servers': 'localhost:29092',  # Use the host port for local testing
@@ -45,7 +45,7 @@ def consume_topic_a():
         time.sleep(5) # Wait for a few seconds before trying to subscribe again
 
 if __name__ == "__main__":
-    consume_topic_a()
+    consume_data_backend_service()
 
 """
 ## Native implementation of Consumer for reference. Above code implementation is using Confluent Kafka.  
