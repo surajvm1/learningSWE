@@ -17,6 +17,7 @@
   - Deploy service to AWS/GCP cloud for more learning. 
   - Fix/Integrate mobile app, flink. 
   - Implement Kafka schema registry. 
+  - Use kubernetes. 
   - Go in depth to each of these services for more learning. 
 
 ----------------------------------------
