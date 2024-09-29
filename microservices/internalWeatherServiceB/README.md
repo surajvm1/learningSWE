@@ -10,6 +10,6 @@
 Others:
 
 - Setup working condition: Working. 
-- Note there were problems setting up connecting to Mongodb container: So had to add `authSource=admin` in the mongodb uri. 
+- Note there were problems setting up connecting to Mongodb container: So had to add `authSource=admin` in the mongodb uri. [Ref link](https://stackoverflow.com/questions/72048051/pymongo-auth-failure-ok-0-0-errmsg-authentication-failed-code-18).
 
 ---------
