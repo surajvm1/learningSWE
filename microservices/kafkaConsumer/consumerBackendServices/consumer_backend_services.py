@@ -37,7 +37,7 @@ def consume_topic_a():
                     # Deserialize the message
                     json_value = msg.value().decode('utf-8')
                     print(f"Received message: {json_value}")
-                    with open('/data/topic_a_data.json', 'a') as f:  # Save to /data inside the container
+                    with open('/data/backend_service_data.json', 'a') as f:  # Save to /data inside the container
                         json.dump(json_value, f)
                         f.write('\n')  # Write each message on a new line
         except KafkaException as e:

@@ -193,5 +193,16 @@
 Others:
 
 - Setup working condition: Works.
+- Also, received CORS errors when was trying to send get/send back response to frontend from Nginx. It was viewable when I did inspect element on the frontend error showing part.
+  ```
+  Sample error: 
+  Access to fetch at 'http://localhost:8765/api/getWeather/delhi' from origin 'http://localhost:4200' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'http://localhost:3000' that is not equal to the supplied origin. Have the server send the header with a valid value, or, if an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+  Failed to load resource: net::ERR_FAILED
+  Fixed error by allowing CORS in Nginx conf like below: 
+    add_header 'Access-Control-Allow-Origin' 'http://localhost:4200';
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS';
+    add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization';
+    add_header 'Access-Control-Allow-Credentials' 'true';
+  ```
 
 ---------
