@@ -10,5 +10,6 @@
 Others:
 
 - Setup working condition: Working. 
+- Note there were problems setting up connecting to Mongodb container: So had to add `authSource=admin` in the mongodb uri. 
 
 ---------

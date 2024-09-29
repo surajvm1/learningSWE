@@ -146,11 +146,6 @@ services:
       - "29092:29092"  # Expose for local access
     networks:
       - service_network
-#    healthcheck:
-#      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.6
@@ -198,26 +193,6 @@ services:
       - service_network
     depends_on:
       - kafka  # Ensure Kafka is running before starting the consumer
-
-#  prometheus:
-#    image: prom/prometheus:v2.54.1
-#    container_name: prometheus
-#    volumes:
-#      - ./service_monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-#    ports:
-#      - "9090:9090"  # Change the host port to 9091
-#    networks:
-#      - service_network
-#
-#  grafana:
-#    image: grafana/grafana:11.2.0
-#    container_name: grafana
-#    ports:
-#      - "3000:3000"  # Change the host port to 3001
-#    networks:
-#      - service_network
-#    environment:
-#      - GF_SECURITY_ADMIN_PASSWORD=admin  # Set admin password for Grafana
 
 volumes:
   pgdata:
