@@ -1,0 +1,29 @@
+version: 3
+name: Weather API Gateway
+timeout: 2000ms  # Global timeout
+endpoints:
+- endpoint: /api/getWeather/{location}
+  method: GET
+  timeout: 5000ms  # Endpoint-specific timeout
+  backend:
+  - host:
+    - http://internal_weather_service_b:8900
+    url_pattern: /api/getWeather/{location}
+- endpoint: /api/sendWeather
+  method: POST
+  backend:
+  - host:
+    - http://internal_weather_service_b:8900
+    url_pattern: /api/sendWeather
+- endpoint: /api/updateWeather/{location}
+  method: PUT
+  backend:
+  - host:
+    - http://internal_weather_service_b:8900
+    url_pattern: /api/updateWeather/{location}
+- endpoint: /api/deleteWeather/{location}
+  method: DELETE
+  backend:
+  - host:
+    - http://internal_weather_service_b:8900
+    url_pattern: /api/deleteWeather/{location}

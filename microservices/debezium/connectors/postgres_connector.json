@@ -1,0 +1,18 @@
+{
+  "name": "weatherdb-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "postgres_service",
+    "database.port": "5432",
+    "database.user": "postgres_user_suraj",
+    "database.password": "postgres_pws_1234",
+    "database.dbname": "weatherdb",
+    "database.server.name": "dbserver1",
+    "plugin.name": "pgoutput",
+    "table.whitelist": "public.weather, weather, public.weather_temp",
+    "database.history.kafka.bootstrap.servers": "kafka:9092",
+    "database.history.kafka.topic": "schema-changes.weatherdb",
+    "topic.prefix": "dbserver1"
+  }
+}

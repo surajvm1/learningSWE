@@ -1,0 +1,353 @@
+<!--
+Basic explanation for below pom.xml:
+POM is an acronym for Project Object Model. The pom.xml file contains information of project and configuration information for the maven to build the project such as dependencies, build directory, source directory, test source directory, plugin, goals etc.
+General Structure
+	<project>: The root element of the POM file, defining the project and its configuration.
+	<modelVersion>: Specifies the version of the POM model used (always 4.0.0 for Maven 2+).
+	<groupId>: The unique identifier for the project’s group or organization.
+	<artifactId>: The unique identifier for the project within the group.
+	<version>: The version of the project.
+Properties
+	<properties>: Defines project-wide properties to avoid hardcoding values. These include:
+	flink.version: Version of Apache Flink.
+	logback.version: Version of Logback for logging.
+	maven.compiler.source and maven.compiler.target: Specify the Java version for compiling the project (Java 11).
+	scala.binary.version: The Scala version, though it's not explicitly used in this POM.
+Profiles
+	<profiles>: Defines different build profiles for different environments:
+	staging and production profiles use the maven-antrun-plugin to copy specific properties files (staging.properties or production.properties) into the build output directory as application.properties.
+Build
+	<build>: Configuration for building the project:
+	maven-antrun-plugin: Deletes the staging.properties and production.properties files from the output directory to clean up after the profiles have been applied.
+	maven-compiler-plugin: Compiles Java source code using Java 11.
+	maven-shade-plugin: Creates a "fat" JAR file that includes all dependencies. This plugin also handles:
+	Exclusions of certain artifacts and files from the JAR.
+	Specification of the main class to run (com.simpl.fraud.analytics.pipeline.FlinkApp).
+Dependencies
+	<dependencies>: Lists the libraries and frameworks used in the project:
+	Flink dependencies: flink-streaming-java, flink-connector-kafka, and flink-clients for Apache Flink integration.
+	Logging: logback dependencies for logging.
+	Database: postgresql for PostgreSQL connectivity and HikariCP for connection pooling.
+	Miscellaneous: Libraries for JSON processing (jackson-databind), HTTP client (okhttp), and AWS SDK.
+	Testing: Dependencies like junit, wiremock-jre8, and mockito-inline for unit testing.
+Dependency Management
+	<dependencyManagement>: Manages versions of dependencies and ensures consistency. It imports the BOM (Bill of Materials) for software.amazon.awssdk, which provides managed versions of AWS SDK dependencies.
+
+Also, <plugins>: Used to specify and configure plugins that are executed during the build process; And
+<pluginManagement>: Used to define default plugin configurations and versions, which can be inherited by child projects but do not execute plugins themselves.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>pi3flinkpipeline</groupId>
+	<artifactId>pi3flinkpipeline</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>Flink Quickstart Job</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<flink.version>1.17.1</flink.version>
+<!--		<target.java.version>1.8</target.java.version>-->
+		<scala.binary.version>2.12</scala.binary.version>
+<!--		<maven.compiler.source>${target.java.version}</maven.compiler.source>-->
+<!--		<maven.compiler.target>${target.java.version}</maven.compiler.target>-->
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<scala.binary.version>2.12</scala.binary.version>
+		<log4j.version>2.17.1</log4j.version>
+		<logback.version>1.2.3</logback.version>
+	</properties>
+
+<!--	<repositories>-->
+<!--		<repository>-->
+<!--			<id>apache.snapshots</id>-->
+<!--			<name>Apache Development Snapshot Repository</name>-->
+<!--			<url>https://repository.apache.org/content/repositories/snapshots/</url>-->
+<!--			<releases>-->
+<!--				<enabled>false</enabled>-->
+<!--			</releases>-->
+<!--			<snapshots>-->
+<!--				<enabled>true</enabled>-->
+<!--			</snapshots>-->
+<!--		</repository>-->
+<!--	</repositories>-->
+
+
+	<profiles>
+		<profile>
+			<id>staging</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<phase>compile</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<copy file="src/main/resources/configs/staging.properties" tofile="${project.build.outputDirectory}/configs/application.properties" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>production</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<phase>compile</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<copy file="src/main/resources/configs/production.properties" tofile="${project.build.outputDirectory}/configs/application.properties" />
+									</tasks>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<delete file="${project.build.outputDirectory}/configs/staging.properties" />
+								<delete file="${project.build.outputDirectory}/configs/production.properties" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Java Compiler -->
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<release>11</release>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<version>3.8.1</version>
+			</plugin>
+			<!-- We use the maven-shade plugin to create a fat jar that contains all necessary dependencies. -->
+			<!-- Change the value of <mainClass>...</mainClass> if your program entry point changes. -->
+			<plugin>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<!-- Run shade goal on package phase -->
+					<execution>
+						<configuration>
+							<artifactSet>
+								<excludes>
+									<exclude>org.apache.flink:force-shading</exclude>
+									<exclude>com.google.code.findbugs:jsr305</exclude>
+									<exclude>org.slf4j:*</exclude>
+									<exclude>log4j:*</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<!-- Do not copy the signatures in the META-INF folder.
+                            Otherwise, this might cause SecurityExceptions when using the JAR. -->
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Build-Number>1</Build-Number>
+										<Main-Class>com.simpl.fraud.analytics.pipeline.FlinkApp</Main-Class>
+									</manifestEntries>
+								</transformer>
+							</transformers>
+						</configuration>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+				<groupId>org.apache.maven.plugins</groupId>
+				<version>3.2.1</version>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<artifactId>jackson-databind</artifactId>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<version>2.11.2</version>
+		</dependency>
+		<dependency>
+			<artifactId>logback-access</artifactId>
+			<groupId>ch.qos.logback</groupId>
+			<version>${logback.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>logback-classic</artifactId>
+			<groupId>ch.qos.logback</groupId>
+			<version>${logback.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>logback-core</artifactId>
+			<groupId>ch.qos.logback</groupId>
+			<version>${logback.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>flink-streaming-java</artifactId>
+			<groupId>org.apache.flink</groupId>
+			<version>${flink.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>flink-connector-kafka</artifactId>
+			<groupId>org.apache.flink</groupId>
+			<version>${flink.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>flink-clients</artifactId>
+			<groupId>org.apache.flink</groupId>
+			<version>${flink.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-test-utils</artifactId>
+			<version>${flink.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>4.9.3</version>
+		</dependency>
+		<dependency>
+			<groupId>io.airbrake</groupId>
+			<artifactId>javabrake</artifactId>
+			<version>0.2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>ssm</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-jackson</artifactId>
+			<version>12.4</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-core</artifactId>
+			<version>12.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-validator</groupId>
+			<artifactId>commons-validator</artifactId>
+			<version>1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.16.0</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock-jre8</artifactId>
+			<version>2.35.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>5.2.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>2.15.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
