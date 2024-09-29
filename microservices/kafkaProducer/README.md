@@ -1,6 +1,6 @@
 ## Microservice - Kafka producer
 
-- The microservice produces data to Kafka to a certain topic. In current case, it's topic_a.  
+- The microservice produces data to Kafka to a certain topic.
 
 ---------
 

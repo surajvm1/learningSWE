@@ -12,7 +12,8 @@ def consume_data_debezium_service():
         'auto.offset.reset': 'earliest'
     })
 
-    topic = 'dbserver1.public.weather'
+    topic = 'dbserver1.public.weather' # Could also use: consumer.subscribe(['dbserver1.*'])
+
     while True:
         try:
             # Attempt to subscribe to the topic
