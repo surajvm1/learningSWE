@@ -100,3 +100,37 @@ Note:
 
 ----------------------------------------
 
+### Project Images for reference
+
+![all-containers.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/all-containers.png)
+
+![get-api-call.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/get-api-call.png)
+![post-api-call.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/post-api-call.png)
+![update-api-call.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/update-api-call.png)
+![delete-api-call.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/delete-api-call.png)
+
+![nginx-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/nginx-logs.png)
+![krakend-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/krakend-logs.png)
+
+![kafka-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/kafka-logs.png)
+![zookeeper-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/zookeeper-logs.png)
+![kafka-topics.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/kafka-topics.png)
+
+![redis-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/redis-logs.png)
+![postgres-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/postgres-logs.png)
+![postgres-table-data.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/postgres-table-data.png)
+![mongodb-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/mongodb-logs.png)
+
+![debezium-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/debezium-logs.png)
+
+![internal-service-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/internal-service-logs.png)
+![external-service-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/external-service-logs.png)
+![kafka-producer-logs.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/kafka-producer-logs.png)
+
+![spark-stream-logs1.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/spark-stream-logs1.png)
+![spark-stream-logs2.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/spark-stream-logs2.png)
+
+![backend-service-data.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/backend-service-data.png)
+![debezium-data.png](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/debezium-data.png)
+
+----------------------------------------
