@@ -152,6 +152,8 @@ Others:
     - If you need to specify the architecture (like linux/amd64), you can build the images using the --platform flag. However, Podman does not directly support the --platform flag with podman-compose. Instead, you can build your images separately using podman build with the --platform option. Docker does, but still, have to see if it would've solved the issue - rather I used another base image.
     - Also, tried instead of running images directly in compose file, created a dockerfile with base OS ubuntu and running the images on top of it, still it gave some other kind of issues. 
 - Useful link: [Json loads method link](https://stackoverflow.com/questions/58048879/what-is-the-difference-between-json-method-and-json-loads)
+- To list topics in Kafka: `kafka-topics --list --bootstrap-server localhost:9092`
+- To view all messages inside kafka topic: `kafka-console-consumer --bootstrap-server localhost:9092 --topic topic_a --from-beginning`
 - More details about microservices in few projects I worked on earlier: 
   - https://github.com/surajvm1/LearningMicroservices
   - https://github.com/surajvm1/mDumpSWE
@@ -194,7 +196,35 @@ Others:
       File "/usr/local/lib/python3.9/site-packages/kafka/client_async.py", line 900, in check_version
         raise Errors.NoBrokersAvailable()
     kafka.errors.NoBrokersAvailable: NoBrokersAvailable
-    ```
   
+    Error 3: 
+    When trying to run podman/docker compose up, there seems some cyclic dependency in containers yielding: 
+    Unable to start container 7d894592e938ccf2c05115ff41e325cc1970fcce198b6fa04479bf99e1db8f36: preparing container 7d894592e938ccf2c05115ff41e325cc1970fcce198b6fa04479bf99e1db8f36 for attach: generating dependency graph for container 7d894592e938ccf2c05115ff41e325cc1970fcce198b6fa04479bf99e1db8f36: container 8bcd4866f6d4899e50f445ed111d9df1dce063ece75c13c2c523587e423921e5 depends on container b369eb05745b14a5e57f107f55789905b78788f2ec60cda8dd6dc2564fb4caee not found in input list: no such container
+    Tried adding timeout when container boots up, and health check also, but no help, like eg:
+    kafka:
+      image: confluentinc/cp-kafka:latest
+      container_name: kafka
+      depends_on:
+        - zookeeper
+      environment:
+        KAFKA_BROKER_ID: 1
+        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      ports:
+        - "9092:9092"
+      healthcheck:
+        test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    
+    Error 4: 
+    urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='external_service_a', port=9900): Max retries exceeded with url: /externalApi/getWeather/delhi (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0xffff94ecda30>: Failed to establish a new connection: [Errno 111] Connection refused'))
+
+  
+    ```
+
 ---------
 

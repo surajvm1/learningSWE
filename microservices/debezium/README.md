@@ -105,6 +105,23 @@
 Others:
 
 - Setup working condition: Working. 
-- The way debezium container is configured in docker compose file, we use `entrypoint` instead of `command` to run the sh script, in order to override and fix up cURL command issues we were facing to register to Kafka connect automatically, than manual intervention.  
+- The way debezium container is configured in docker compose file, we use `entrypoint` instead of `command` to run the sh script, in order to override and fix up cURL command issues we were facing to register to Kafka connect automatically, than manual intervention.
+- We could hit the cURL command written in bash file manually by entering the debezium container and hitting it, but rather we automated this process so that when container is up via compose, it is hit automatically.
+- Also, the sh script may not be executable directly in beginning so ensure you run `chmod +x <name>` command on it. 
+- Debezium requires changing wal_level='logical' in postgres. It has not been an easy direct way. 
+  - To view wal level in your postgres:
+  ```
+  psql -U postgres_user_suraj -d weatherdb
+  SHOW wal_level; (definitely put semi colon)
+  ALTER SYSTEM SET wal_level=logical; (To alter wal_level) 
+  ```
+  - Also, for ref: 
+  ```
+  weatherdb=# SELECT * FROM pg_stat_replication;
+  pid | usesysid |       usename       |  application_name  | client_addr | client_hostname | client_port |         backend_start         | backend_xmin |   state   | sent_lsn  | write_lsn | flush_lsn | replay_lsn | write_lag | flush_lag | replay_lag | sync_priority | sync_state |          reply_time           
+  -----+----------+---------------------+--------------------+-------------+-----------------+-------------+-------------------------------+--------------+-----------+-----------+-----------+-----------+------------+-----------+-----------+------------+---------------+------------+-------------------------------
+  38 |       10 | postgres_user_suraj | Debezium Streaming | 10.89.0.218 |                 |       55018 | 2024-08-31 18:16:15.936886+00 |              | streaming | 0/15F77C0 | 0/15F77C0 |           |            |           |           |            |             0 | async      | 1999-12-21 01:02:35.607882+00
+  ```
+- Also debezium moved its images from dockerhub to quay which I used: https://debezium.io/blog/2023/04/25/container-images-quayio/. Using dockerhub debezium images were also giving me platform issues, so quay was better and updated. 
 
 ---------
