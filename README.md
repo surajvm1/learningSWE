@@ -4,8 +4,8 @@
 ![project architecture overview](https://github.com/surajvm1/learningSWE/blob/dev/feat1/imgs_for_readme_reference/e2eDevProj.drawio.png)
 
 - Note(s): 
-- Project done in past to understand docker services: https://github.com/surajvm1/LearningMicroservices
-- Repo, where I save my learnings from internet: https://github.com/surajvm1/mDumpSWE
+  - Project done in past to understand docker services: https://github.com/surajvm1/LearningMicroservices
+  - Repo, where I save my learnings from internet: https://github.com/surajvm1/mDumpSWE
 
 - Things to do in project in the future: 
   - Integrate monitoring tools in services like Prometheus/Grafana/cAdvisor. 
