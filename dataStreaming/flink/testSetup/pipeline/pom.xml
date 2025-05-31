@@ -22,7 +22,7 @@ Build
 	maven-compiler-plugin: Compiles Java source code using Java 11.
 	maven-shade-plugin: Creates a "fat" JAR file that includes all dependencies. This plugin also handles:
 	Exclusions of certain artifacts and files from the JAR.
-	Specification of the main class to run (com.simpl.fraud.analytics.pipeline.FlinkApp).
+	Specification of the main class to run (com.flinkpipeline.FlinkApp).
 Dependencies
 	<dependencies>: Lists the libraries and frameworks used in the project:
 	Flink dependencies: flink-streaming-java, flink-connector-kafka, and flink-clients for Apache Flink integration.
@@ -194,7 +194,7 @@ Also, <plugins>: Used to specify and configure plugins that are executed during 
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
 										<Build-Number>1</Build-Number>
-										<Main-Class>com.simpl.fraud.analytics.pipeline.FlinkApp</Main-Class>
+										<Main-Class>com.flinkpipeline.FlinkApp</Main-Class>
 									</manifestEntries>
 								</transformer>
 							</transformers>
