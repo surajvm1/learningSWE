@@ -17,6 +17,7 @@
   - Deploy service to AWS/GCP cloud for more learning. 
   - Fix/Integrate mobile app, flink. 
   - Implement Kafka schema registry. 
+  - Use kubernetes. 
   - Go in depth to each of these services for more learning. 
 
 ----------------------------------------
@@ -37,6 +38,7 @@
   - Others:
     - Java (v11)
 
+- Note: I have changed the API key used in externalService, so one must generate their own. 
 - To start running the project on your local; Follow: 
 
 ```

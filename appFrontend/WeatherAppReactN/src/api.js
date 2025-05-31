@@ -1,7 +1,6 @@
 // src/api.js
 
-const API_URL_POST_CALL = 'http://localhost:8765/api'; // Create/Post API call via Nginx and Kong
-const API_URL = API_URL_POST_CALL;
+const API_URL = 'http://localhost:8765/api'; // API call via Nginx and KrakenD
 
 export const getWeather = async (location) => {
   const res = await fetch(`${API_URL}/getWeather/${location}`);
@@ -12,7 +11,7 @@ export const getWeather = async (location) => {
 };
 
 export const sendWeather = async (data) => {
-  const res = await fetch(`${API_URL_POST_CALL}/sendWeather`, {
+  const res = await fetch(`${API_URL}/sendWeather`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
